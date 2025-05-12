@@ -1,0 +1,54 @@
+2025-05-09 15:47:23,558 WARNING: PyNaCl is not installed, voice will NOT be supported
+2025-05-09 15:47:23,559 DEBUG: on_ready has successfully been registered as an event
+2025-05-09 15:47:23,559 DEBUG: Using proactor: IocpProactor
+2025-05-09 15:47:23,560 INFO: logging in using static token
+2025-05-09 15:47:24,666 INFO: Shard ID None has connected to Gateway (Session ID: 95de8a284f753aa7bf0b81aac0f32cf7).
+2025-05-09 15:47:26,673 DEBUG: Starting new HTTPS connection (1): www.kjf-gym.de:443
+2025-05-09 15:47:26,743 DEBUG: https://www.kjf-gym.de:443 "GET /vp/vplansmobile/mobdaten/PlanKl20250509.xml?=1 HTTP/11" 200 283048
+2025-05-09 15:47:26,837 DEBUG: Starting new HTTPS connection (1): www.kjf-gym.de:443
+2025-05-09 15:47:27,464 DEBUG: https://www.kjf-gym.de:443 "GET /vp/vplansmobile/mobdaten/PlanKl20250510.xml?=1 HTTP/11" 404 None
+2025-05-09 15:47:27,502 DEBUG: Starting new HTTPS connection (1): www.kjf-gym.de:443
+2025-05-09 15:47:28,096 DEBUG: https://www.kjf-gym.de:443 "GET /vp/vplansmobile/mobdaten/PlanKl20250511.xml?=1 HTTP/11" 404 None
+2025-05-09 15:47:28,137 DEBUG: Starting new HTTPS connection (1): www.kjf-gym.de:443
+2025-05-09 15:47:28,205 DEBUG: https://www.kjf-gym.de:443 "GET /vp/vplansmobile/mobdaten/PlanKl20250512.xml?=1 HTTP/11" 200 251524
+2025-05-09 15:47:28,295 DEBUG: [SAVE_JSON] 20250512.json = [{'stunde': 1, 'beginn': '7:15', 'ende': '08:00', 'fach': 'Mat', 'kurs': None, 'lehrer': 'Feld', 'raum': '225', 'info': None}, {'stunde': 2, 'beginn': None, 'ende': None, 'fach': 'Mat', 'kurs': None, 'lehrer': 'Feld', 'raum': '225', 'info': None}, {'stunde': 3, 'beginn': '9:05', 'ende': '09:50', 'fach': 'rus1', 'kurs': 'rus1', 'lehrer': 'Möw', 'raum': '118', 'info': None}, {'stunde': 4, 'beginn': None, 'ende': None, 'fach': 'rus1', 'kurs': 'rus1', 'lehrer': 'Möw', 'raum': '118', 'info': None}, {'stunde': 5, 'beginn': '11:00', 'ende': '11:45', 'fach': 'Ges', 'kurs': None, 'lehrer': 'Neu', 'raum': '118', 'info': None}, {'stunde': 6, 'beginn': None, 'ende': None, 'fach': 'Ges', 'kurs': None, 'lehrer': 'Neu', 'raum': '118', 'info': None}, {'stunde': 7, 'beginn': '12:55', 'ende': '13:40', 'fach': 'Bio', 'kurs': None, 'lehrer': 'Gruß', 'raum': '243', 'info': None}, {'stunde': 8, 'beginn': None, 'ende': None, 'fach': 'Bio', 'kurs': None, 'lehrer': 'Gruß', 'raum': '243', 'info': None}]
+2025-05-09 15:47:28,296 DEBUG: Starting new HTTPS connection (1): www.kjf-gym.de:443
+2025-05-09 15:47:28,364 DEBUG: https://www.kjf-gym.de:443 "GET /vp/vplansmobile/mobdaten/PlanKl20250513.xml?=1 HTTP/11" 200 255921
+2025-05-09 15:47:28,447 DEBUG: Starting new HTTPS connection (1): www.kjf-gym.de:443
+2025-05-09 15:47:28,515 DEBUG: https://www.kjf-gym.de:443 "GET /vp/vplansmobile/mobdaten/PlanKl20250514.xml?=1 HTTP/11" 200 279232
+2025-05-09 15:47:28,609 DEBUG: Starting new HTTPS connection (1): www.kjf-gym.de:443
+2025-05-09 15:47:28,698 DEBUG: https://www.kjf-gym.de:443 "GET /vp/vplansmobile/mobdaten/PlanKl20250515.xml?=1 HTTP/11" 200 286988
+2025-05-09 15:47:28,791 DEBUG: Starting new HTTPS connection (1): www.kjf-gym.de:443
+2025-05-09 15:47:28,869 DEBUG: https://www.kjf-gym.de:443 "GET /vp/vplansmobile/mobdaten/PlanKl20250516.xml?=1 HTTP/11" 200 273295
+2025-05-09 15:47:28,955 DEBUG: Starting new HTTPS connection (1): www.kjf-gym.de:443
+2025-05-09 15:47:29,639 DEBUG: https://www.kjf-gym.de:443 "GET /vp/vplansmobile/mobdaten/PlanKl20250517.xml?=1 HTTP/11" 404 None
+2025-05-09 15:47:29,677 DEBUG: Starting new HTTPS connection (1): www.kjf-gym.de:443
+2025-05-09 15:47:30,430 DEBUG: https://www.kjf-gym.de:443 "GET /vp/vplansmobile/mobdaten/PlanKl20250518.xml?=1 HTTP/11" 404 None
+2025-05-09 15:47:30,472 DEBUG: Starting new HTTPS connection (1): www.kjf-gym.de:443
+2025-05-09 15:47:31,271 DEBUG: https://www.kjf-gym.de:443 "GET /vp/vplansmobile/mobdaten/PlanKl20250519.xml?=1 HTTP/11" 404 None
+2025-05-09 15:47:31,314 DEBUG: Starting new HTTPS connection (1): www.kjf-gym.de:443
+2025-05-09 15:47:32,064 DEBUG: https://www.kjf-gym.de:443 "GET /vp/vplansmobile/mobdaten/PlanKl20250520.xml?=1 HTTP/11" 404 None
+2025-05-09 15:47:32,107 DEBUG: Starting new HTTPS connection (1): www.kjf-gym.de:443
+2025-05-09 15:47:32,887 DEBUG: https://www.kjf-gym.de:443 "GET /vp/vplansmobile/mobdaten/PlanKl20250521.xml?=1 HTTP/11" 404 None
+2025-05-09 15:47:32,925 DEBUG: Starting new HTTPS connection (1): www.kjf-gym.de:443
+2025-05-09 15:47:33,646 DEBUG: https://www.kjf-gym.de:443 "GET /vp/vplansmobile/mobdaten/PlanKl20250522.xml?=1 HTTP/11" 404 None
+2025-05-09 15:47:33,689 DEBUG: Starting new HTTPS connection (1): www.kjf-gym.de:443
+2025-05-09 15:47:34,327 DEBUG: https://www.kjf-gym.de:443 "GET /vp/vplansmobile/mobdaten/PlanKl20250523.xml?=1 HTTP/11" 404 None
+2025-05-09 15:47:34,371 DEBUG: Starting new HTTPS connection (1): www.kjf-gym.de:443
+2025-05-09 15:47:35,064 DEBUG: https://www.kjf-gym.de:443 "GET /vp/vplansmobile/mobdaten/PlanKl20250524.xml?=1 HTTP/11" 404 None
+2025-05-09 15:47:35,106 DEBUG: Starting new HTTPS connection (1): www.kjf-gym.de:443
+2025-05-09 15:47:35,821 DEBUG: https://www.kjf-gym.de:443 "GET /vp/vplansmobile/mobdaten/PlanKl20250525.xml?=1 HTTP/11" 404 None
+2025-05-09 15:47:35,863 DEBUG: Starting new HTTPS connection (1): www.kjf-gym.de:443
+2025-05-09 15:47:36,586 DEBUG: https://www.kjf-gym.de:443 "GET /vp/vplansmobile/mobdaten/PlanKl20250526.xml?=1 HTTP/11" 404 None
+2025-05-09 15:47:36,624 DEBUG: Starting new HTTPS connection (1): www.kjf-gym.de:443
+2025-05-09 15:47:37,233 DEBUG: https://www.kjf-gym.de:443 "GET /vp/vplansmobile/mobdaten/PlanKl20250527.xml?=1 HTTP/11" 404 None
+2025-05-09 15:47:37,276 DEBUG: Starting new HTTPS connection (1): www.kjf-gym.de:443
+2025-05-09 15:47:37,945 DEBUG: https://www.kjf-gym.de:443 "GET /vp/vplansmobile/mobdaten/PlanKl20250528.xml?=1 HTTP/11" 404 None
+2025-05-09 15:47:37,986 DEBUG: Starting new HTTPS connection (1): www.kjf-gym.de:443
+2025-05-09 15:47:38,773 DEBUG: https://www.kjf-gym.de:443 "GET /vp/vplansmobile/mobdaten/PlanKl20250529.xml?=1 HTTP/11" 404 None
+2025-05-09 15:47:38,814 DEBUG: Starting new HTTPS connection (1): www.kjf-gym.de:443
+2025-05-09 15:47:39,641 DEBUG: https://www.kjf-gym.de:443 "GET /vp/vplansmobile/mobdaten/PlanKl20250530.xml?=1 HTTP/11" 404 None
+2025-05-09 15:47:39,679 DEBUG: Starting new HTTPS connection (1): www.kjf-gym.de:443
+2025-05-09 15:47:40,523 DEBUG: https://www.kjf-gym.de:443 "GET /vp/vplansmobile/mobdaten/PlanKl20250531.xml?=1 HTTP/11" 404 None
+2025-05-09 15:47:40,565 DEBUG: Starting new HTTPS connection (1): www.kjf-gym.de:443
+2025-05-09 15:47:41,242 DEBUG: https://www.kjf-gym.de:443 "GET /vp/vplansmobile/mobdaten/PlanKl20250601.xml?=1 HTTP/11" 404 None
