@@ -90,18 +90,27 @@ def parse_xml(xml_bytes: bytes, klasse: str = "10E") -> List[dict]:
 
     rows: list[dict] = []
     for s in pl.findall("Std"):
-        rows.append(
-            {
-                "stunde": int(g(s, "St") or 0),
-                "beginn": g(s, "Beginn"),
-                "ende": g(s, "Ende"),
-                "fach": g(s, "Fa"),
-                "kurs": g(s, "Ku2"),
-                "lehrer": g(s, "Le"),
-                "raum": g(s, "Ra"),
-                "info": g(s, "If"),
-            }
-        )
+        st     = int(g(s, "St") or 0)
+        beginn = g(s, "Beginn")
+        ende   = g(s, "Ende")
+        fach   = g(s, "Fa")
+        kurs   = g(s, "Ku2")
+        lehrer = g(s, "Le")
+        raum   = g(s, "Ra")
+        info   = g(s, "If")
+        # Wenn Info vorhanden, aber Lehrer und Raum fehlen → Ausfall
+        if info and not lehrer and not raum:
+            fach = "---"
+        rows.append({
+            "stunde": st,
+            "beginn": beginn,
+            "ende":   ende,
+            "fach":   fach,
+            "kurs":   kurs,
+            "lehrer": lehrer,
+            "raum":   raum,
+            "info":   info,
+        })
     return rows
 
 
@@ -117,7 +126,8 @@ def keep(e: dict) -> bool:
     leh = (e["lehrer"] or "").upper()
     info = e["info"] or ""
 
-    if (fach, leh) in MY_COURSES:
+    # true, wenn Fach+Lehrer matchen oder der Kurs allein in MY_KURSE steht
+    if (fach, leh) in MY_COURSES or (e["kurs"] or "").upper() in MY_KURSE:
         return True
     # Eintrag '---' signalisiert Ausfall; Info-Feld enthält oft Kurs oder Lehrer
     return fach == "---" and (kurs in MY_KURSE or INFO_RE.search(info))
