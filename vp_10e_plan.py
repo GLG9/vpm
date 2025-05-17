@@ -50,6 +50,7 @@ MY_COURSES: set[tuple[str, str]] = {
 
 MY_KURSE: set[str] = {k for k, _ in MY_COURSES}
 MY_LEHRER: set[str] = {l for _, l in MY_COURSES}
+SUBJECTS:  set[str] = {f for f, _ in MY_COURSES}
 INFO_RE = re.compile(
     "|".join(re.escape(x) for x in MY_KURSE | MY_LEHRER), re.IGNORECASE
 )
@@ -93,14 +94,19 @@ def parse_xml(xml_bytes: bytes, klasse: str = "10E") -> List[dict]:
         st     = int(g(s, "St") or 0)
         beginn = g(s, "Beginn")
         ende   = g(s, "Ende")
-        fach   = g(s, "Fa")
+        fach_orig = g(s, "Fa")
+        fach      = fach_orig
         kurs   = g(s, "Ku2")
         lehrer = g(s, "Le")
         raum   = g(s, "Ra")
         info   = g(s, "If")
         # Wenn Info vorhanden, aber Lehrer und Raum fehlen → Ausfall
+         # Ausfall-Erkennung: Info vorhanden **und** weder Lehrer noch Raum
+        # → Fach auf '---' setzen; ursprüngliches Fach in `kurs` parken
         if info and not lehrer and not raum:
             fach = "---"
+            if not kurs:
+                kurs = fach_orig
         rows.append({
             "stunde": st,
             "beginn": beginn,
@@ -126,12 +132,20 @@ def keep(e: dict) -> bool:
     leh = (e["lehrer"] or "").upper()
     info = e["info"] or ""
 
-    # true, wenn Fach+Lehrer matchen oder der Kurs allein in MY_KURSE steht
-    if (fach, leh) in MY_COURSES or (e["kurs"] or "").upper() in MY_KURSE:
+    # reguläre Stunde: Fach+Lehrer müssen passen **oder** Kurs steht in MY_KURSE
+    # reguläre Stunde: Fach+Lehrer-Kombi **oder** Kurs in unserer Kursliste
+    if (fach, leh) in MY_COURSES or kurs in MY_KURSE:
         return True
-    # Eintrag '---' signalisiert Ausfall; Info-Feld enthält oft Kurs oder Lehrer
-    return fach == "---" and (kurs in MY_KURSE or INFO_RE.search(info))
 
+    # Ausfall-Zeile: fach == '---'
+    if fach == "---":
+        return (
+            kurs in MY_KURSE
+            or kurs in SUBJECTS      # z. B. "DEU"
+            or INFO_RE.search(info)
+        )
+
+    return False
 
 # Alias, damit der Bot das Filterobjekt nach Belieben austauschen kann
 mine = keep

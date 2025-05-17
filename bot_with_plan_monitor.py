@@ -6,6 +6,7 @@
 Plantage für n Tage, Prune-Logs und per .env konfigurierbares Tick-Header."""
 from __future__ import annotations
 
+import unicodedata as _ud
 import asyncio
 import datetime as dt
 import hashlib
@@ -13,7 +14,7 @@ import json
 import logging
 import os
 import pathlib
-from typing import Dict, List, Set, Optional
+from typing import Dict, List, Set, Optional   # ← bleibt gleich, aber …
 
 import discord
 import requests
@@ -22,6 +23,10 @@ from dotenv import load_dotenv
 
 import vp_10e_plan as vp
 vp.mine = vp.keep
+
+def _canon(s: str) -> str:
+    """Unicode-normalisieren, überflüssige Leerzeichen killen."""
+    return _ud.normalize("NFC", " ".join(s.split()))
 
 # ---------------------------------------------------------------------------
 # Discord-Init
@@ -36,7 +41,7 @@ if not TOKEN or CHANNEL_ID == 0:
 
 logging.basicConfig(
     level=logging.INFO,
-    handlers=[logging.FileHandler("discord.log", mode="w", encoding="utf-8")],
+    handlers=[logging.FileHandler("discord.log", mode="a", encoding="utf-8")],  # ← mode="a"
     format="%(asctime)s %(levelname)s: %(message)s",
 )
 
@@ -80,16 +85,34 @@ def prune_logs(n: int = 10) -> None:
             try: f.unlink()
             except OSError: pass
 
+# --------- Alerts verwalten -------------------------------------------------
+KEEP_DAYS = 21                     # Meldungen nach 21 Tagen verwerfen
+
 ALERTS = DIR / "alerts.json"
-def load_alerts() -> Dict[str, Set[int]]:
+def load_alerts() -> dict[str, set[str]]:
     try:
-        data = json.loads(ALERTS.read_text())
-        return {day: set(hours) for day, hours in data.items()}
-    except FileNotFoundError:
+        raw  = ALERTS.read_text(encoding="utf-8")
+        if not raw.strip():                # leere Datei → neu beginnen
+            return {}
+        data = json.loads(raw)
+        today = dt.date.today()
+        fresh: dict[str, set[str]] = {}
+        for day, msgs in data.items():
+            try:
+                if (today - dt.datetime.strptime(day, "%Y%m%d").date()).days <= KEEP_DAYS:
+                    fresh[day] = set(msgs)
+            except ValueError:
+                continue
+        return fresh
+    except (FileNotFoundError, json.JSONDecodeError):
         return {}
-def save_alerts(alerts: Dict[str, Set[int]]):
-    serial = {day: sorted(list(hours)) for day, hours in alerts.items()}
-    ALERTS.write_text(json.dumps(serial, ensure_ascii=False, indent=2))
+def save_alerts(alerts: Dict[str, Set[str]]) -> None:
+    serial = {day: sorted(list(msgs)) for day, msgs in alerts.items()}
+    # immer UTF-8 schreiben – unabhängig von der Windows-Codepage
+    ALERTS.write_text(
+        json.dumps(serial, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
 
 DIGEST = DIR / "last_digest.txt"
 def read_digest() -> Optional[str]:
@@ -115,7 +138,7 @@ def room_change(old: dict, new: dict) -> Optional[str]:
 # ---------------------------------------------------------------------------
 # Haupt-Task
 # ---------------------------------------------------------------------------
-@tasks.loop(seconds=20)
+@tasks.loop(seconds=60)
 async def check() -> None:
     ch = bot.get_channel(CHANNEL_ID)
     if ch is None:
@@ -124,6 +147,7 @@ async def check() -> None:
     alerts = load_alerts()
     today_str = dt.date.today().strftime("%Y%m%d")
     seen_hours = alerts.get(today_str, set())
+    sent_msgs = alerts.get(today_str, set()) 
     day_offset = 0
     misses = 0
     head = f"🕒 Tick {dt.datetime.now():%H:%M:%S}" if SHOW_TICK else ""
@@ -166,35 +190,42 @@ async def check() -> None:
             logging.info(f"[Neuer Plan] {day:%Y-%m-%d} – {len(mine)} Einträge geladen")
             continue
 
-        # Raumänderungen und Ausfälle
-        rc_msgs: List[str] = []
-        # 1) neue Ausfälle sammeln
-        ausfall = [
-            e for e in mine
-            if e["fach"] == "---" and e["stunde"] not in seen_hours
-        ]
-        for e in ausfall:
-            rc_msgs.append(f"• Ausfall in Stunde {e['stunde']} – {e['info'] or ''} - {e.get('kurs') or ''}")
-            seen_hours.add(e["stunde"])
-        if ausfall:
-            alerts[today_str] = seen_hours
+        # -------- Meldungen generieren ------------------------------------
+        rc_msgs: list[str] = []
+
+        # 1) Ausfälle
+        for e in (en for en in mine if en["fach"] == "---"):
+            raw  = (f"{day:%Y-%m-%d} ▸ Ausfall in Stunde {e['stunde']} – "
+                f"{e['info'] or ''} - {e.get('kurs') or ''}")
+            msg  = _canon(raw)
+            if msg not in sent_msgs:
+                rc_msgs.append(f"• {msg}")
+                sent_msgs.add(msg)
+
+        # 2) Raumänderungen
+        for e in mine:
+            o = next(
+                (
+                    o for o in prev
+                    if o["stunde"] == e["stunde"]
+                    and (o["kurs"] or o["fach"]) == (e["kurs"] or e["fach"])
+                ),
+                None
+            )
+            if o:
+                txt = room_change(o, e)
+                if txt:
+                    raw = f"{day:%Y-%m-%d} ▸ {txt}"
+                    msg = _canon(raw)
+                    if msg not in sent_msgs:
+                        rc_msgs.append(f"• {msg}")
+                        sent_msgs.add(msg)
+
+        # erfolgte neuen Meldungen persistieren
+        if rc_msgs:
+            alerts[today_str] = sent_msgs
             save_alerts(alerts)
             save_json(day, mine)
-        else:
-            # 2) Raumänderungen prüfen, wenn keine neuen Ausfälle
-            for e in mine:
-                o = next(
-                    (
-                        o for o in prev
-                        if o["stunde"] == e["stunde"]
-                        and (o["kurs"] or o["fach"]) == (e["kurs"] or e["fach"])
-                    ),
-                    None
-                )
-                if o:
-                    txt = room_change(o, e)
-                    if txt:
-                        rc_msgs.append(f"• {txt}")
 
         if rc_msgs:
             block = f"📅 {day:%d.%m.%Y}\n" + "\n".join(rc_msgs)
@@ -206,11 +237,11 @@ async def check() -> None:
     prune_logs(10)
 
     # Nur reine Ausfall-Blöcke (ohne Raumänderungen) → nur ersten Ausfall senden
-    if out and all(("Ausfall" in block) and ("Raumänderung" not in block) for block in out):
-        block = next(block for block in out if "Ausfall" in block)
-        text = f"{head}\n{block}" if SHOW_TICK else block
-        await ch.send(text)
-        return
+    #if out and all(("Ausfall" in block) and ("Raumänderung" not in block) for block in out):
+    #    block = next(block for block in out if "Ausfall" in block)
+    #    text = f"{head}\n{block}" if SHOW_TICK else block
+    #    await ch.send(text)
+    #    return
 
     # Duplikate unterdrücken
 #    if not out:
@@ -284,4 +315,42 @@ async def on_ready():
         check.start()
 
 if __name__ == "__main__":
-    bot.run(TOKEN)
+    import time, traceback, datetime as dt
+
+    while True:
+        try:
+            # *** PRO ITERATION EIN NEUER BOT ***
+            intents = discord.Intents.default()
+            intents.message_content = True
+            bot = commands.Bot("!", intents=intents)
+
+            # Commands/Events müssen nach der Instanziierung
+            # erneut registriert werden:
+            bot.add_command(c_today)
+            bot.add_command(c_morgen)
+            bot.add_command(c_over)
+            bot.add_command(c_over2)
+            bot.add_listener(on_ready)
+
+            check.restart()     # Task an den neuen Bot binden
+            bot.run(TOKEN)
+            break                      # reguläres Ende
+
+        except KeyboardInterrupt:      # sauber beenden (systemctl stop / Ctrl-C)
+            break
+
+        except discord.errors.LoginFailure as exc:
+            # ungültiger Token → nicht endlos reconnecten
+            with open("error.log", "a", encoding="utf-8") as fh:
+                fh.write(
+                    f"\n=== {dt.datetime.now():%Y-%m-%d %H:%M:%S} ===\n"
+                    f"{exc}\n"
+                )
+            break          # -> Dienst bleibt gestoppt, bis Token gefixt ist
+        except Exception:                  # andere Crashes → retry            
+            with open("error.log", "a", encoding="utf-8") as fh:
+                fh.write(
+                    f"\n=== {dt.datetime.now():%Y-%m-%d %H:%M:%S} ===\n"
+                    f"{traceback.format_exc()}\n"
+                )
+            time.sleep(15)             # 15 s Pause, dann neuer Versuch

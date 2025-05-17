@@ -43,20 +43,20 @@
     "stunde": 5,
     "beginn": "11:00",
     "ende": "11:45",
-    "fach": "Eng",
+    "fach": "Deu",
     "kurs": null,
-    "lehrer": "Skal",
-    "raum": "235",
+    "lehrer": "PetH",
+    "raum": "030",
     "info": null
   },
   {
     "stunde": 6,
     "beginn": null,
     "ende": null,
-    "fach": "Eng",
+    "fach": "Deu",
     "kurs": null,
-    "lehrer": "Skal",
-    "raum": "235",
+    "lehrer": "PetH",
+    "raum": "030",
     "info": null
   }
 ]
