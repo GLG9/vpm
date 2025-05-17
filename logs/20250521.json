@@ -6,7 +6,7 @@
     "fach": "Mat",
     "kurs": null,
     "lehrer": "Feld",
-    "raum": "229",
+    "raum": "114",
     "info": null
   },
   {
@@ -16,7 +16,7 @@
     "fach": "Mat",
     "kurs": null,
     "lehrer": "Feld",
-    "raum": "229",
+    "raum": "114",
     "info": null
   },
   {
@@ -33,11 +33,11 @@
     "stunde": 3,
     "beginn": "9:05",
     "ende": "09:50",
-    "fach": "inf1",
+    "fach": "---",
     "kurs": "inf1",
-    "lehrer": "Bosse",
-    "raum": "132",
-    "info": null
+    "lehrer": null,
+    "raum": null,
+    "info": "selbst."
   },
   {
     "stunde": 4,
@@ -53,11 +53,11 @@
     "stunde": 4,
     "beginn": null,
     "ende": null,
-    "fach": "inf1",
+    "fach": "---",
     "kurs": "inf1",
-    "lehrer": "Bosse",
-    "raum": "132",
-    "info": null
+    "lehrer": null,
+    "raum": null,
+    "info": "selbst."
   },
   {
     "stunde": 5,

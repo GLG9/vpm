@@ -1,11 +1,13 @@
+#!/usr/bin/env python3
 # ------------------------------------------------------------
 # bot_with_plan_monitor.py
 # ------------------------------------------------------------
-#!/usr/bin/env python3
-"""Discord-Bot, der Vertretungsplan meldet – Ausfall nur einmal gesammelt, Plantage für n Tage, und Prune-Logs."""
+"""Discord-Bot, der Vertretungsplan meldet – Ausfall nur einmal gesammelt, Plantage für n Tage, Prune-Logs und per .env konfigurierbares Tick-Header."""
+"""Hallo, ich bin ein Bot, der den Vertretungsplan überwacht und Meldungen über Änderungen sendet. Ich kann auch den Plan für die nächsten Tage abrufen."""
 
 from __future__ import annotations
 
+import unicodedata as _ud
 import asyncio
 import datetime as dt
 import hashlib
@@ -13,7 +15,7 @@ import json
 import logging
 import os
 import pathlib
-from typing import Dict, List, Set, Optional
+from typing import Dict, List, Set, Optional   # ← bleibt gleich, aber …
 
 import discord
 import requests
@@ -23,19 +25,24 @@ from dotenv import load_dotenv
 import vp_10e_plan as vp
 vp.mine = vp.keep
 
+def _canon(s: str) -> str:
+    """Unicode-normalisieren, überflüssige Leerzeichen killen."""
+    return _ud.normalize("NFC", " ".join(s.split()))
+
 # ---------------------------------------------------------------------------
 # Discord-Init
 # ---------------------------------------------------------------------------
-
 load_dotenv()
 TOKEN      = os.getenv("DISCORD_TOKEN")
 CHANNEL_ID = int(os.getenv("PLAN_CHANNEL_ID", "0"))
+SHOW_TICK  = os.getenv("SHOW_TICK", "false").lower() == "true"
+
 if not TOKEN or CHANNEL_ID == 0:
     raise RuntimeError("DISCORD_TOKEN oder PLAN_CHANNEL_ID fehlt")
 
 logging.basicConfig(
-    level=logging.DEBUG,
-    handlers=[logging.FileHandler("discord.log", mode="w", encoding="utf-8")],
+    level=logging.INFO,
+    handlers=[logging.FileHandler("discord.log", mode="a", encoding="utf-8")],  # ← mode="a"
     format="%(asctime)s %(levelname)s: %(message)s",
 )
 
@@ -43,10 +50,15 @@ intents = discord.Intents.default()
 intents.message_content = True
 bot = commands.Bot("!", intents=intents)
 
+# Steuerung via .env:
+# SHOW_TICK=true/false  → Kopfzeile senden, auch bei keinen Änderungen
+# SHOW_RES=true/false   → Parsed-Response für Klasse 10E jeden Tag ins Log
+SHOW_TICK = os.getenv("SHOW_TICK", "false").lower() == "true"
+SHOW_RES  = os.getenv("SHOW_RES",  "false").lower() == "true"
+
 # ---------------------------------------------------------------------------
 # Log-Ordner & Utils
 # ---------------------------------------------------------------------------
-
 DIR = pathlib.Path(__file__).with_name("logs")
 DIR.mkdir(exist_ok=True)
 
@@ -54,10 +66,8 @@ PF = lambda d: DIR / f"{d:%Y%m%d}.json"
 load_json = lambda d: json.loads(PF(d).read_text()) if PF(d).exists() else None
 save_json = lambda d, p: PF(d).write_text(json.dumps(p, ensure_ascii=False, indent=2))
 
-# prune old logs
 def last_schooldays(n: int = 10) -> Set[str]:
-    days: List[dt.date] = []
-    cur = dt.date.today()
+    days, cur = [], dt.date.today()
     while len(days) < n:
         if cur.weekday() < 5:
             days.append(cur)
@@ -73,54 +83,62 @@ def prune_logs(n: int = 10) -> None:
         except ValueError:
             continue
         if name not in keep and d < dt.date.today():
-            try:
-                f.unlink()
-            except OSError:
-                pass
+            try: f.unlink()
+            except OSError: pass
 
-# alerts state
+# --------- Alerts verwalten -------------------------------------------------
+KEEP_DAYS = 21                     # Meldungen nach 21 Tagen verwerfen
+
 ALERTS = DIR / "alerts.json"
-def load_alerts() -> Dict[str, Set[int]]:
+def load_alerts() -> dict[str, set[str]]:
     try:
-        data = json.loads(ALERTS.read_text())
-        return {day: set(hours) for day, hours in data.items()}
-    except FileNotFoundError:
+        raw  = ALERTS.read_text(encoding="utf-8")
+        if not raw.strip():                # leere Datei → neu beginnen
+            return {}
+        data = json.loads(raw)
+        today = dt.date.today()
+        fresh: dict[str, set[str]] = {}
+        for day, msgs in data.items():
+            try:
+                if (today - dt.datetime.strptime(day, "%Y%m%d").date()).days <= KEEP_DAYS:
+                    fresh[day] = set(msgs)
+            except ValueError:
+                continue
+        return fresh
+    except (FileNotFoundError, json.JSONDecodeError):
         return {}
-def save_alerts(alerts: Dict[str, Set[int]]):
-    serial = {day: sorted(list(hours)) for day, hours in alerts.items()}
-    ALERTS.write_text(json.dumps(serial, ensure_ascii=False, indent=2))
+def save_alerts(alerts: Dict[str, Set[str]]) -> None:
+    serial = {day: sorted(list(msgs)) for day, msgs in alerts.items()}
+    # immer UTF-8 schreiben – unabhängig von der Windows-Codepage
+    ALERTS.write_text(
+        json.dumps(serial, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
 
-# digest
 DIGEST = DIR / "last_digest.txt"
 def read_digest() -> Optional[str]:
-    try:
-        return DIGEST.read_text().strip()
-    except FileNotFoundError:
-        return None
+    try: return DIGEST.read_text().strip()
+    except FileNotFoundError: return None
 def write_digest(d: str) -> None:
     DIGEST.write_text(d)
 
 # ---------------------------------------------------------------------------
 # Anzeige-Hilfen
 # ---------------------------------------------------------------------------
-
 def fmt(e: dict) -> str:
     fach = f"AUSFALL ({e['kurs']})" if e["fach"] == "---" else e["fach"]
     return f"{e['stunde']} {e['beginn'] or '--'}-{e['ende'] or '--'} {fach} {e['raum'] or ''} {e['lehrer'] or ''}"
 
 def room_change(old: dict, new: dict) -> Optional[str]:
-    key_old = (old.get("kurs") or old.get("fach") or "").upper()
-    key_new = (new.get("kurs") or new.get("fach") or "").upper()
-    r_old   = (old.get("raum") or "").strip().upper()
-    r_new   = (new.get("raum") or "").strip().upper()
-    if old["stunde"] == new["stunde"] and key_old == key_new and r_old != r_new:
-        return f"Raumänderung: Stunde {new['stunde']} {key_new} {old.get('raum') or '---'} → {new.get('raum') or '---'}"
+    ko, kn = (old.get("kurs") or old.get("fach") or "").upper(), (new.get("kurs") or new.get("fach") or "").upper()
+    ro, rn = (old.get("raum") or "").strip().upper(), (new.get("raum") or "").strip().upper()
+    if old["stunde"] == new["stunde"] and ko == kn and ro != rn:
+        return f"Raumänderung: Stunde {new['stunde']} {kn} {old.get('raum') or '---'} → {new.get('raum') or '---'}"
     return None
 
 # ---------------------------------------------------------------------------
 # Haupt-Task
 # ---------------------------------------------------------------------------
-
 @tasks.loop(seconds=60)
 async def check() -> None:
     ch = bot.get_channel(CHANNEL_ID)
@@ -128,21 +146,33 @@ async def check() -> None:
         return
 
     alerts = load_alerts()
-    day_offset = 0
-    misses = 0
-    head = f"🕒 Tick {dt.datetime.now():%H:%M:%S}"
-    out: List[str] = []
-
     today_str = dt.date.today().strftime("%Y%m%d")
     seen_hours = alerts.get(today_str, set())
+    sent_msgs = alerts.get(today_str, set()) 
+    day_offset = 0
+    misses = 0
+    head = f"🕒 Tick {dt.datetime.now():%H:%M:%S}" if SHOW_TICK else ""
+    out: List[str] = []
 
-    # scan next ~10 schooldays
     while misses < 16:
         day = dt.date.today() + dt.timedelta(day_offset)
         day_offset += 1
         try:
+            # lade rohe XML
             xml = await asyncio.to_thread(vp.lade_plan, day)
             misses = 0
+            if SHOW_RES:
+                # nur den <Kl Kurz="10E">-Block extrahieren und loggen
+                import xml.etree.ElementTree as ET
+                root = ET.fromstring(xml)
+                kl10e = next(
+                    (k for k in root.findall(".//Kl")
+                    if (k.findtext("Kurz") or "").strip().upper() == "10E"),
+                    None
+                )
+                if kl10e is not None:
+                    snippet = ET.tostring(kl10e, encoding="unicode")
+                    logging.info(f"[Raw 10E XML {day:%Y%m%d}] {snippet}")
         except requests.HTTPError as e:
             if e.response.status_code == 404:
                 misses += 1
@@ -150,160 +180,135 @@ async def check() -> None:
             logging.exception("HTTP-Fehler")
             break
 
+        # parse erst nach dem Logging
         mine = [e for e in vp.parse_xml(xml) if vp.mine(e)]
+
         prev = load_json(day)
 
-        # always save on first encounter
         if prev is None:
             save_json(day, mine)
             out.append(f"📅 {day:%d.%m.%Y} – neuer Plan ({len(mine)})")
+            logging.info(f"[Neuer Plan] {day:%Y-%m-%d} – {len(mine)} Einträge geladen")
             continue
 
-        # collect changes
-        rc_msgs: List[str] = []
-        for n in mine:
+        # -------- Meldungen generieren ------------------------------------
+        rc_msgs: list[str] = []
+
+        # 1) Ausfälle
+        for e in (en for en in mine if en["fach"] == "---"):
+            raw  = (f"{day:%Y-%m-%d} ▸ Ausfall in Stunde {e['stunde']} – "
+                f"{e['info'] or ''} - {e.get('kurs') or ''}")
+            msg  = _canon(raw)
+            if msg not in sent_msgs:
+                rc_msgs.append(f"• {msg}")
+                sent_msgs.add(msg)
+
+        # 2) Raumänderungen
+        for e in mine:
             o = next(
-                (o for o in prev
-                 if o["stunde"] == n["stunde"]
-                 and (o["kurs"] or o["fach"]) == (n["kurs"] or n["fach"])),
+                (
+                    o for o in prev
+                    if o["stunde"] == e["stunde"]
+                    and (o["kurs"] or o["fach"]) == (e["kurs"] or e["fach"])
+                ),
                 None
             )
             if o:
-                txt = room_change(o, n)
+                txt = room_change(o, e)
                 if txt:
-                    rc_msgs.append(f"• {txt}")
+                    raw = f"{day:%Y-%m-%d} ▸ {txt}"
+                    msg = _canon(raw)
+                    if msg not in sent_msgs:
+                        rc_msgs.append(f"• {msg}")
+                        sent_msgs.add(msg)
+
+        # erfolgte neuen Meldungen persistieren
+        if rc_msgs:
+            alerts[today_str] = sent_msgs
+            save_alerts(alerts)
+            save_json(day, mine)
 
         if rc_msgs:
-            out.append(f"📅 {day:%d.%m.%Y}\n" + "\n".join(rc_msgs))
+            block = f"📅 {day:%d.%m.%Y}\n" + "\n".join(rc_msgs)
+            out.append(block)
+            logging.info(f"[Planänderung] {day:%Y-%m-%d}\n" + "\n".join(rc_msgs))
             save_json(day, mine)
-        else:
-            # only for today, collect new Ausfall
-            if day == dt.date.today():
-                new_entries = [
-                    n for n in mine
-                    if n["fach"] == "---"
-                    and n["stunde"] not in seen_hours
-                    and any(o for o in prev if o["stunde"] == n["stunde"] and o["fach"] != "---")
-                ]
-                if new_entries:
-                    lines = [
-                        f"• Ausfall in Stunde {n['stunde']} – {n['info']}"
-                        for n in new_entries
-                    ]
-                    out.append(f"📅 {day:%d.%m.%Y}\n" + "\n".join(lines))
-                    # persist seen
-                    seen_hours |= {n["stunde"] for n in new_entries}
-                    alerts[today_str] = seen_hours
-                    save_alerts(alerts)
-                    save_json(day, mine)
+
 
     prune_logs(10)
 
-    # pure Ausfall-only suppression
-    if out and all(line.startswith("• Ausfall") or line.startswith("📅") for line in out):
-        # if only Ausfall blocks, send just head
-        send_out = []
-        for block in out:
-            # detect if block contains Raumänderung, keep only first block with Ausfall
-            if "Raumänderung" not in block:
-                send_out = [block]
-                break
-        #if send_out:
-            #await ch.send(f"{head}\n" + send_out[0])
-        #else:
-            #await ch.send(head)
-        return
+    # Nur reine Ausfall-Blöcke (ohne Raumänderungen) → nur ersten Ausfall senden
+    #if out and all(("Ausfall" in block) and ("Raumänderung" not in block) for block in out):
+    #    block = next(block for block in out if "Ausfall" in block)
+    #    text = f"{head}\n{block}" if SHOW_TICK else block
+    #    await ch.send(text)
+    #    return
 
-    # duplicate suppression
-    if not out:
-        #await ch.send(head)
-        return
+    # Duplikate unterdrücken
+#    if not out:
+#        return
+#    payload = "\n".join(out)
+#    digest = hashlib.sha256(payload.encode()).hexdigest()
+#    if digest == read_digest():
+#        return
+#    write_digest(digest)
+#
+#    # Sende alles (mit Kopf, falls SHOW_TICK)
+#    text = f"{head}\n{payload}" if SHOW_TICK else payload
+#    await ch.send(text)
+# duplicate suppression
     payload = "\n".join(out)
     digest = hashlib.sha256(payload.encode()).hexdigest()
     if digest == read_digest():
-        #await ch.send(head)
+        # kein neuer Digest
+        if SHOW_TICK:
+            await ch.send(head)
         return
     write_digest(digest)
-    #await ch.send("\n".join([head, *out]))
+
+    # wenn Änderungen vorliegen, sende sie (mit Kopf, falls SHOW_TICK)
+    if out:
+        text = f"{head}\n{payload}" if SHOW_TICK else payload
+        await ch.send(text)
+    # falls keine Änderungen, aber SHOW_TICK, sende nur das Tick-Header
+    elif SHOW_TICK:
+        await ch.send(head)
 
 # ---------------------------------------------------------------------------
-# Commands & Startup
+# Slash-/Text-Befehle
 # ---------------------------------------------------------------------------
+async def _send(ctx: commands.Context, day: dt.date, title: str) -> None:
+    try:
+        xml = await asyncio.to_thread(vp.lade_plan, day)
+    except requests.HTTPError as e:
+        if e.response.status_code == 404:
+            await ctx.send(f"{title} ist Frei :)")
+            return
+        await ctx.send("Plan nicht verfügbar.")
+        return
+
+    mine = [e for e in vp.parse_xml(xml) if vp.mine(e)]
+    if not mine:
+        await ctx.send("Keine Stunden für deine Kurse.")
+        return
+
+    mine.sort(key=lambda x: x["stunde"])
+    header = f"📅 **{title} – {day:%d.%m.%Y}**"
+    lines = [f"• {fmt(e)}" for e in mine]
+    await ctx.send("\n".join([header, *lines]))
 
 @bot.command(name="heute")
-async def c_today(ctx):
-    xml = await asyncio.to_thread(vp.lade_plan, dt.date.today())
-    mine = [e for e in vp.parse_xml(xml) if vp.mine(e)]
-    if not mine:
-        return await ctx.send("Keine Stunden für deine Kurse.")
-    mine.sort(key=lambda x: x["stunde"])
-    await ctx.send(
-        "\n".join(
-            [f"📅 **Plan heute – {dt.date.today():%d.%m.%Y}**"] +
-            [f"• {fmt(e)}" for e in mine]
-        )
-    )
-
+async def c_today(ctx):     await _send(ctx, dt.date.today(), "Plan heute")
 @bot.command(name="morgen")
-async def c_morgen(ctx):
-    tomorrow = dt.date.today() + dt.timedelta(1)
-    try:
-        xml = await asyncio.to_thread(vp.lade_plan, tomorrow)
-    except requests.HTTPError as e:
-        if e.response.status_code == 404:
-            return await ctx.send("Morgen ist Frei :)")
-        raise
-    mine = [e for e in vp.parse_xml(xml) if vp.mine(e)]
-    if not mine:
-        return await ctx.send("Keine Stunden für deine Kurse.")
-    mine.sort(key=lambda x: x["stunde"])
-    await ctx.send(
-        "\n".join(
-            [f"📅 **Plan morgen – {tomorrow:%d.%m.%Y}**"] +
-            [f"• {fmt(e)}" for e in mine]
-        )
-    )
-
+async def c_morgen(ctx):    await _send(ctx, dt.date.today() + dt.timedelta(1), "Plan morgen")
 @bot.command(name="übermorgen", aliases=["uebermorgen"])
-async def c_uebermorgen(ctx):
-    day = dt.date.today() + dt.timedelta(2)
-    try:
-        xml = await asyncio.to_thread(vp.lade_plan, day)
-    except requests.HTTPError as e:
-        if e.response.status_code == 404:
-            return await ctx.send("Übermorgen ist Frei :)")
-        raise
-    mine = [e for e in vp.parse_xml(xml) if vp.mine(e)]
-    if not mine:
-        return await ctx.send("Keine Stunden für deine Kurse.")
-    mine.sort(key=lambda x: x["stunde"])
-    await ctx.send(
-        "\n".join(
-            [f"📅 **Plan übermorgen – {day:%d.%m.%Y}**"] +
-            [f"• {fmt(e)}" for e in mine]
-        )
-    )
-
+async def c_over(ctx):      await _send(ctx, dt.date.today() + dt.timedelta(2), "Plan übermorgen")
 @bot.command(name="überübermorgen", aliases=["ueberuebermorgen"])
-async def c_uebermorgen(ctx):
-    day = dt.date.today() + dt.timedelta(3)
-    try:
-        xml = await asyncio.to_thread(vp.lade_plan, day)
-    except requests.HTTPError as e:
-        if e.response.status_code == 404:
-            return await ctx.send("Überübermorgen ist Frei :)")
-        raise
-    mine = [e for e in vp.parse_xml(xml) if vp.mine(e)]
-    if not mine:
-        return await ctx.send("Keine Stunden für deine Kurse.")
-    mine.sort(key=lambda x: x["stunde"])
-    await ctx.send(
-        "\n".join(
-            [f"📅 **Plan überübermorgen – {day:%d.%m.%Y}**"] +
-            [f"• {fmt(e)}" for e in mine]
-        )
-    )
+async def c_over2(ctx):     await _send(ctx, dt.date.today() + dt.timedelta(3), "Plan überübermorgen")
 
+# ---------------------------------------------------------------------------
+# Startup
+# ---------------------------------------------------------------------------
 @bot.event
 async def on_ready():
     print("Bot online:", bot.user)
@@ -311,4 +316,42 @@ async def on_ready():
         check.start()
 
 if __name__ == "__main__":
-    bot.run(TOKEN)
+    import time, traceback, datetime as dt
+
+    while True:
+        try:
+            # *** PRO ITERATION EIN NEUER BOT ***
+            intents = discord.Intents.default()
+            intents.message_content = True
+            bot = commands.Bot("!", intents=intents)
+
+            # Commands/Events müssen nach der Instanziierung
+            # erneut registriert werden:
+            bot.add_command(c_today)
+            bot.add_command(c_morgen)
+            bot.add_command(c_over)
+            bot.add_command(c_over2)
+            bot.add_listener(on_ready)
+
+            check.restart()     # Task an den neuen Bot binden
+            bot.run(TOKEN)
+            break                      # reguläres Ende
+
+        except KeyboardInterrupt:      # sauber beenden (systemctl stop / Ctrl-C)
+            break
+
+        except discord.errors.LoginFailure as exc:
+            # ungültiger Token → nicht endlos reconnecten
+            with open("error.log", "a", encoding="utf-8") as fh:
+                fh.write(
+                    f"\n=== {dt.datetime.now():%Y-%m-%d %H:%M:%S} ===\n"
+                    f"{exc}\n"
+                )
+            break          # -> Dienst bleibt gestoppt, bis Token gefixt ist
+        except Exception:                  # andere Crashes → retry            
+            with open("error.log", "a", encoding="utf-8") as fh:
+                fh.write(
+                    f"\n=== {dt.datetime.now():%Y-%m-%d %H:%M:%S} ===\n"
+                    f"{traceback.format_exc()}\n"
+                )
+            time.sleep(15)             # 15 s Pause, dann neuer Versuch

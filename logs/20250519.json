@@ -6,7 +6,7 @@
     "fach": "Mat",
     "kurs": null,
     "lehrer": "Feld",
-    "raum": "225",
+    "raum": "115",
     "info": null
   },
   {
@@ -16,7 +16,7 @@
     "fach": "Mat",
     "kurs": null,
     "lehrer": "Feld",
-    "raum": "225",
+    "raum": "115",
     "info": null
   },
   {
@@ -26,7 +26,7 @@
     "fach": "rus1",
     "kurs": "rus1",
     "lehrer": "Möw",
-    "raum": "118",
+    "raum": "031",
     "info": null
   },
   {
@@ -36,7 +36,7 @@
     "fach": "rus1",
     "kurs": "rus1",
     "lehrer": "Möw",
-    "raum": "118",
+    "raum": "031",
     "info": null
   },
   {
@@ -46,7 +46,7 @@
     "fach": "Ges",
     "kurs": null,
     "lehrer": "Neu",
-    "raum": "118",
+    "raum": "134",
     "info": null
   },
   {
@@ -56,7 +56,7 @@
     "fach": "Ges",
     "kurs": null,
     "lehrer": "Neu",
-    "raum": "118",
+    "raum": "134",
     "info": null
   },
   {

@@ -3,21 +3,21 @@
     "stunde": 1,
     "beginn": "7:15",
     "ende": "08:00",
-    "fach": "Spo",
-    "kurs": null,
-    "lehrer": "SchJ",
-    "raum": "TH2",
-    "info": null
+    "fach": "---",
+    "kurs": "---",
+    "lehrer": null,
+    "raum": null,
+    "info": "Spo SchJ fällt aus"
   },
   {
     "stunde": 2,
     "beginn": null,
     "ende": null,
-    "fach": "Spo",
-    "kurs": null,
-    "lehrer": "SchJ",
-    "raum": "TH2",
-    "info": null
+    "fach": "---",
+    "kurs": "---",
+    "lehrer": null,
+    "raum": null,
+    "info": "Spo SchJ fällt aus"
   },
   {
     "stunde": 3,
@@ -26,7 +26,7 @@
     "fach": "Eng",
     "kurs": null,
     "lehrer": "Skal",
-    "raum": "235",
+    "raum": "122",
     "info": null
   },
   {
@@ -36,18 +36,18 @@
     "fach": "Eng",
     "kurs": null,
     "lehrer": "Skal",
-    "raum": "235",
+    "raum": "122",
     "info": null
   },
   {
     "stunde": 5,
     "beginn": "11:00",
     "ende": "11:45",
-    "fach": "kun2",
+    "fach": "---",
     "kurs": "kun2",
-    "lehrer": "KugJ",
-    "raum": "037",
-    "info": null
+    "lehrer": null,
+    "raum": null,
+    "info": "kun2 KugJ fällt aus"
   },
   {
     "stunde": 5,
@@ -56,18 +56,18 @@
     "fach": "wil1",
     "kurs": "wil1",
     "lehrer": "Wetz",
-    "raum": "229",
+    "raum": "031",
     "info": null
   },
   {
     "stunde": 6,
     "beginn": null,
     "ende": null,
-    "fach": "kun2",
+    "fach": "---",
     "kurs": "kun2",
-    "lehrer": "KugJ",
-    "raum": "037",
-    "info": null
+    "lehrer": null,
+    "raum": null,
+    "info": "kun2 KugJ fällt aus"
   },
   {
     "stunde": 6,
@@ -76,7 +76,7 @@
     "fach": "wil1",
     "kurs": "wil1",
     "lehrer": "Wetz",
-    "raum": "229",
+    "raum": "031",
     "info": null
   }
 ]
