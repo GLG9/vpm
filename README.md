@@ -2,7 +2,7 @@
 
 Ein kleiner, aber leistungsfähiger **Discord‑Bot**, der den Vertretungs‑ und Raum‑plan für die Klasse **10 E** automatisch überwacht, Änderungen erkennt und sie als Meldung in einen Discord‑Channel pusht. Geschrieben in *Python 3* – ohne Datenbank, alles wird lokal als JSON geloggt.
 
-> Entwickelt & gepflegt von **Gianluca "Gigi" L.**   🛠️  – Feedback / Pull‑Requests sind willkommen!
+> Entwickelt & gepflegt von **Gianluca "GLG9"   🛠️  – Feedback / Pull‑Requests sind willkommen!
 
 ---
 
@@ -23,7 +23,7 @@ Ein kleiner, aber leistungsfähiger **Discord‑Bot**, der den Vertretungs‑ un
 
 ```bash
 # 1) Klonen
-$ git clone https://github.com/<dein‑user>/vpm-bot.git
+$ git clone https://github.com/GLG9/vpm.git
 $ cd vpm-bot
 
 # 2) Virtuelle Umgebung (empfohlen)
