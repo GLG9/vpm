@@ -12,6 +12,7 @@ import re
 from typing import List
 import requests
 import xml.etree.ElementTree as ET
+from dotenv import load_dotenv   #  NEU
 
 __all__ = [
     "lade_plan",
@@ -19,12 +20,23 @@ __all__ = [
     "mine",  # Alias auf keep()
 ]
 
-USERNAME: str = os.getenv("VP_USER", "REMOVED")
-PASSWORD: str = os.getenv("VP_PASS", "REMOVED")
-# Für Produktion ggf. per .env überschreiben
-BASE_URL: str = os.getenv(
-    "VP_BASE_URL", "REMOVED"
-)
+# .env laden (wird beim Bot-Start schon getan, aber hier zur
+# Stand-Alone-Nutzung noch einmal, falls noch nicht geschehen)
+load_dotenv()
+
+# ------------------------------------------------------------------
+# ▸ Zugangsdaten **ausschließlich** aus der .env-Datei lesen
+#    (keine Fallback-Defaults mehr!)
+# ------------------------------------------------------------------
+USERNAME: str | None   = os.getenv("VP_USER")
+PASSWORD: str | None   = os.getenv("VP_PASS")
+BASE_URL: str | None   = os.getenv("VP_BASE_URL")
+
+# Sofort meckern, falls etwas fehlt
+if not (USERNAME and PASSWORD and BASE_URL):
+    raise RuntimeError(
+        "Bitte VP_USER, VP_PASS und VP_BASE_URL in der .env Datei setzen."
+    )
 
 #BASE_URL = "http://localhost:8765"
 
