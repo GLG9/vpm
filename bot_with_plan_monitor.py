@@ -2,8 +2,9 @@
 # ------------------------------------------------------------
 # bot_with_plan_monitor.py
 # ------------------------------------------------------------
-"""Discord-Bot, der Vertretungsplan meldet – Ausfall nur einmal gesammelt,
-Plantage für n Tage, Prune-Logs und per .env konfigurierbares Tick-Header."""
+"""Discord-Bot, der Vertretungsplan meldet – Ausfall nur einmal gesammelt, Plantage für n Tage, Prune-Logs und per .env konfigurierbares Tick-Header."""
+"""Hallo, ich bin ein Bot, der den Vertretungsplan überwacht und Meldungen über Änderungen sendet. Ich kann auch den Plan für die nächsten Tage abrufen."""
+
 from __future__ import annotations
 
 import unicodedata as _ud
