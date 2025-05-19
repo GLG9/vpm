@@ -3,21 +3,21 @@
     "stunde": 1,
     "beginn": "7:15",
     "ende": "08:00",
-    "fach": "Mat",
-    "kurs": null,
-    "lehrer": "Feld",
-    "raum": "115",
-    "info": null
+    "fach": "---",
+    "kurs": "Mat",
+    "lehrer": null,
+    "raum": null,
+    "info": "selbst."
   },
   {
     "stunde": 2,
     "beginn": null,
     "ende": null,
-    "fach": "Mat",
-    "kurs": null,
-    "lehrer": "Feld",
-    "raum": "115",
-    "info": null
+    "fach": "---",
+    "kurs": "Mat",
+    "lehrer": null,
+    "raum": null,
+    "info": "selbst."
   },
   {
     "stunde": 3,
@@ -25,7 +25,7 @@
     "ende": "09:50",
     "fach": "rus1",
     "kurs": "rus1",
-    "lehrer": "Möw",
+    "lehrer": "MÃ¶w",
     "raum": "031",
     "info": null
   },
@@ -35,7 +35,7 @@
     "ende": null,
     "fach": "rus1",
     "kurs": "rus1",
-    "lehrer": "Möw",
+    "lehrer": "MÃ¶w",
     "raum": "031",
     "info": null
   },
@@ -65,7 +65,7 @@
     "ende": "13:40",
     "fach": "Bio",
     "kurs": null,
-    "lehrer": "Gruß",
+    "lehrer": "GruÃŸ",
     "raum": "243",
     "info": null
   },
@@ -75,7 +75,7 @@
     "ende": null,
     "fach": "Bio",
     "kurs": null,
-    "lehrer": "Gruß",
+    "lehrer": "GruÃŸ",
     "raum": "243",
     "info": null
   }

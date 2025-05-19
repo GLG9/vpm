@@ -26,15 +26,41 @@ from dotenv import load_dotenv
 
 import vp_10e_plan as vp
 vp.mine = vp.keep
+load_dotenv()
 
 def _canon(s: str) -> str:
     """Unicode-normalisieren, überflüssige Leerzeichen killen."""
     return _ud.normalize("NFC", " ".join(s.split()))
 
+######
+
+# datetime → zentralisieren
+import os
+import datetime as dt, os, logging
+
+_fake = os.getenv("FAKE_DATE")
+if _fake:
+    try:
+        _fake_date = dt.datetime.strptime(_fake, "%Y%m%d").date()
+
+        class _FakeDate(dt.date):
+            @classmethod
+            def today(cls):
+                return _fake_date
+
+        dt.date = _FakeDate        # type: ignore[attr-defined]
+        logging.info("FAKE_DATE aktiv: %s", _fake)
+    except ValueError:
+        logging.warning("Ungültige FAKE_DATE=%s – echtes Datum wird benutzt", _fake)
+
+
+
+######
+
 # ---------------------------------------------------------------------------
 # Discord-Init
 # ---------------------------------------------------------------------------
-load_dotenv()
+
 TOKEN      = os.getenv("DISCORD_TOKEN")
 CHANNEL_ID = int(os.getenv("PLAN_CHANNEL_ID", "0"))
 SHOW_TICK  = os.getenv("SHOW_TICK", "false").lower() == "true"
@@ -89,7 +115,8 @@ def prune_logs(n: int = 10) -> None:
             except OSError: pass
 
 # --------- Alerts verwalten -------------------------------------------------
-KEEP_DAYS = 21                     # Meldungen nach 21 Tagen verwerfen
+KEEP_DAYS = 21 
+DUP_DAYS  = 16   # innerhalb dieser Frist KEINE erneute Benachrichtigung                    # Meldungen nach 21 Tagen verwerfen
 
 ALERTS = DIR / "alerts.json"
 def load_alerts() -> dict[str, set[str]]:
@@ -147,10 +174,17 @@ async def check() -> None:
     if ch is None:
         return
 
-    alerts = load_alerts()
-    today_str = dt.date.today().strftime("%Y%m%d")
-    seen_hours = alerts.get(today_str, set())
-    sent_msgs = alerts.get(today_str, set()) 
+    alerts    = load_alerts()
+    today     = dt.date.today()
+    today_str = today.strftime("%Y%m%d")
+
+    # ► alle Meldungen der letzten DUP_DAYS sammeln
+    recent_msgs: set[str] = set()
+    for day, msgs in alerts.items():
+        if (today - dt.datetime.strptime(day, "%Y%m%d").date()).days <= DUP_DAYS:
+            recent_msgs |= msgs
+
+    sent_msgs: set[str] = set(recent_msgs)  # wird unten erweiter 
     day_offset = 0
     misses = 0
     head = f"🕒 Tick {dt.datetime.now():%H:%M:%S}" if SHOW_TICK else ""
@@ -225,9 +259,12 @@ async def check() -> None:
                         sent_msgs.add(msg)
 
         # erfolgte neuen Meldungen persistieren
+        # ► wirklich neue Meldungen des *heutigen* Laufs sichern
         if rc_msgs:
-            alerts[today_str] = sent_msgs
-            save_alerts(alerts)
+            new_today = sent_msgs - recent_msgs
+            if new_today:
+                alerts.setdefault(today_str, set()).update(new_today)
+                save_alerts(alerts)
             save_json(day, mine)
 
         if rc_msgs:
