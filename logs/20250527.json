@@ -1,0 +1,62 @@
+[
+  {
+    "stunde": 1,
+    "beginn": "7:15",
+    "ende": "08:00",
+    "fach": "Eng",
+    "kurs": null,
+    "lehrer": "Skal",
+    "raum": "130",
+    "info": "verlegt von St.5; Che Gruß fällt aus"
+  },
+  {
+    "stunde": 2,
+    "beginn": null,
+    "ende": null,
+    "fach": "Eng",
+    "kurs": null,
+    "lehrer": "Skal",
+    "raum": "130",
+    "info": "verlegt von St.6; Che Gruß fällt aus"
+  },
+  {
+    "stunde": 3,
+    "beginn": "9:05",
+    "ende": "09:50",
+    "fach": "Phy",
+    "kurs": null,
+    "lehrer": "Vogel",
+    "raum": "139",
+    "info": null
+  },
+  {
+    "stunde": 4,
+    "beginn": null,
+    "ende": null,
+    "fach": "Phy",
+    "kurs": null,
+    "lehrer": "Vogel",
+    "raum": "139",
+    "info": null
+  },
+  {
+    "stunde": 5,
+    "beginn": "11:00",
+    "ende": "11:45",
+    "fach": "---",
+    "kurs": "---",
+    "lehrer": null,
+    "raum": null,
+    "info": "Eng Skal verlegt nach St.1"
+  },
+  {
+    "stunde": 6,
+    "beginn": null,
+    "ende": null,
+    "fach": "---",
+    "kurs": "---",
+    "lehrer": null,
+    "raum": null,
+    "info": "Eng Skal verlegt nach St.2"
+  }
+]

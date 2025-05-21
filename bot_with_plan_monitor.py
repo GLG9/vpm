@@ -18,6 +18,7 @@ import logging
 import os
 import pathlib
 from typing import Dict, List, Set, Optional   # ← bleibt gleich, aber …
+import xml.etree.ElementTree as xml  # nur für den ParseError-Catch
 
 import discord
 import requests
@@ -216,8 +217,18 @@ async def check() -> None:
             logging.exception("HTTP-Fehler")
             break
 
-        # parse erst nach dem Logging
-        mine = [e for e in vp.parse_xml(xml) if vp.mine(e)]
+        # ------------------------------------------------------------
+        # XML parsen  (kann fehlschlagen, wenn die Datei unvollständig
+        # übertragen wurde → ParseError).  Dann Tag überspringen.
+        # ------------------------------------------------------------
+        try:
+            mine = [e for e in vp.parse_xml(xml) if vp.mine(e)]
+        except xml.ParseError as err:
+            logging.warning(
+                "Ungültiges XML für %s – Plan wird übersprungen (%s)",
+                day, err,
+            )
+            continue
 
         prev = load_json(day)
 
