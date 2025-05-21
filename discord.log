@@ -175,3 +175,26 @@ xml.etree.ElementTree.ParseError: unclosed token: line 2, column 301237
 2025-05-21 14:44:31,447 WARNING: PyNaCl is not installed, voice will NOT be supported
 2025-05-21 14:44:31,448 INFO: logging in using static token
 2025-05-21 14:44:32,532 INFO: Shard ID None has connected to Gateway (Session ID: 211e3a133675cbf162e3b19e65cbe8ec).
+2025-05-21 14:58:37,036 ERROR: Unhandled exception in internal background task 'check'.
+Traceback (most recent call last):
+  File "/root/vpm/bot_with_plan_monitor.py", line 225, in check
+    mine = [e for e in vp.parse_xml(xml) if vp.mine(e)]
+                       ^^^^^^^^^^^^^^^^^
+  File "/root/vpm/vp_10e_plan.py", line 87, in parse_xml
+    root = ET.fromstring(xml_bytes)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/xml/etree/ElementTree.py", line 1339, in XML
+    return parser.close()
+           ^^^^^^^^^^^^^^
+xml.etree.ElementTree.ParseError: unclosed token: line 2, column 257729
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/discord/ext/tasks/__init__.py", line 246, in _loop
+    await self.coro(*args, **kwargs)
+  File "/root/vpm/bot_with_plan_monitor.py", line 226, in check
+    except xml.ParseError as err:
+           ^^^^^^^^^^^^^^
+AttributeError: 'bytes' object has no attribute 'ParseError'
+2025-05-21 15:16:42,361 INFO: Shard ID None has successfully RESUMED session 211e3a133675cbf162e3b19e65cbe8ec.

@@ -18,7 +18,7 @@ import logging
 import os
 import pathlib
 from typing import Dict, List, Set, Optional   # ← bleibt gleich, aber …
-import xml.etree.ElementTree as xml  # nur für den ParseError-Catch
+import xml.etree.ElementTree as ET  # nur für den ParseError-Catch
 
 import discord
 import requests
@@ -196,12 +196,11 @@ async def check() -> None:
         day_offset += 1
         try:
             # lade rohe XML
-            xml = await asyncio.to_thread(vp.lade_plan, day)
+            xml_bytes = await asyncio.to_thread(vp.lade_plan, day)
             misses = 0
             if SHOW_RES:
                 # nur den <Kl Kurz="10E">-Block extrahieren und loggen
-                import xml.etree.ElementTree as ET
-                root = ET.fromstring(xml)
+                root = ET.fromstring(xml_bytes)
                 kl10e = next(
                     (k for k in root.findall(".//Kl")
                     if (k.findtext("Kurz") or "").strip().upper() == "10E"),
@@ -222,8 +221,8 @@ async def check() -> None:
         # übertragen wurde → ParseError).  Dann Tag überspringen.
         # ------------------------------------------------------------
         try:
-            mine = [e for e in vp.parse_xml(xml) if vp.mine(e)]
-        except xml.ParseError as err:
+            mine = [e for e in vp.parse_xml(xml_bytes) if vp.mine(e)]
+        except ET.ParseError as err:
             logging.warning(
                 "Ungültiges XML für %s – Plan wird übersprungen (%s)",
                 day, err,
@@ -329,7 +328,7 @@ async def check() -> None:
 # ---------------------------------------------------------------------------
 async def _send(ctx: commands.Context, day: dt.date, title: str) -> None:
     try:
-        xml = await asyncio.to_thread(vp.lade_plan, day)
+        xml_bytes = await asyncio.to_thread(vp.lade_plan, day)
     except requests.HTTPError as e:
         if e.response.status_code == 404:
             await ctx.send(f"{title} ist Frei :)")
@@ -337,7 +336,7 @@ async def _send(ctx: commands.Context, day: dt.date, title: str) -> None:
         await ctx.send("Plan nicht verfügbar.")
         return
 
-    mine = [e for e in vp.parse_xml(xml) if vp.mine(e)]
+    mine = [e for e in vp.parse_xml(xml_bytes) if vp.mine(e)]
     if not mine:
         await ctx.send("Keine Stunden für deine Kurse.")
         return
