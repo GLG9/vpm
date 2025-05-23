@@ -258,7 +258,7 @@ async def check() -> None:
                         rc_msgs.append(f"• {msg}")
                         sent_msgs.add(msg)
 
-        # erfolgte neuen Meldungen persistieren
+        # erfolgreiche neue Meldungen persistieren
         # ► wirklich neue Meldungen des *heutigen* Laufs sichern
         if rc_msgs:
             new_today = sent_msgs - recent_msgs
