@@ -184,7 +184,7 @@ async def check() -> None:
         if (today - dt.datetime.strptime(day, "%Y%m%d").date()).days <= DUP_DAYS:
             recent_msgs |= msgs
 
-    sent_msgs: set[str] = set(recent_msgs)  # wird unten erweiter 
+    sent_msgs: set[str] = set(recent_msgs)  # wird unten erweitert
     day_offset = 0
     misses = 0
     head = f"🕒 Tick {dt.datetime.now():%H:%M:%S}" if SHOW_TICK else ""
