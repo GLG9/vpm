@@ -36,8 +36,6 @@ def _canon(s: str) -> str:
 ######
 
 # datetime → zentralisieren
-import os
-import datetime as dt, os, logging
 
 _fake = os.getenv("FAKE_DATE")
 if _fake:
@@ -64,7 +62,6 @@ if _fake:
 
 TOKEN      = os.getenv("DISCORD_TOKEN")
 CHANNEL_ID = int(os.getenv("PLAN_CHANNEL_ID", "0"))
-SHOW_TICK  = os.getenv("SHOW_TICK", "false").lower() == "true"
 
 if not TOKEN or CHANNEL_ID == 0:
     raise RuntimeError("DISCORD_TOKEN oder PLAN_CHANNEL_ID fehlt")
@@ -185,7 +182,7 @@ async def check() -> None:
         if (today - dt.datetime.strptime(day, "%Y%m%d").date()).days <= DUP_DAYS:
             recent_msgs |= msgs
 
-    sent_msgs: set[str] = set(recent_msgs)  # wird unten erweiter 
+    sent_msgs: set[str] = set(recent_msgs)  # wird unten erweitert
     day_offset = 0
     misses = 0
     head = f"🕒 Tick {dt.datetime.now():%H:%M:%S}" if SHOW_TICK else ""
@@ -268,7 +265,7 @@ async def check() -> None:
                         rc_msgs.append(f"• {msg}")
                         sent_msgs.add(msg)
 
-        # erfolgte neuen Meldungen persistieren
+        # erfolgreiche neue Meldungen persistieren
         # ► wirklich neue Meldungen des *heutigen* Laufs sichern
         if rc_msgs:
             new_today = sent_msgs - recent_msgs
