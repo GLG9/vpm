@@ -35,8 +35,6 @@ def _canon(s: str) -> str:
 ######
 
 # datetime → zentralisieren
-import os
-import datetime as dt, os, logging
 
 _fake = os.getenv("FAKE_DATE")
 if _fake:
@@ -63,7 +61,6 @@ if _fake:
 
 TOKEN      = os.getenv("DISCORD_TOKEN")
 CHANNEL_ID = int(os.getenv("PLAN_CHANNEL_ID", "0"))
-SHOW_TICK  = os.getenv("SHOW_TICK", "false").lower() == "true"
 
 if not TOKEN or CHANNEL_ID == 0:
     raise RuntimeError("DISCORD_TOKEN oder PLAN_CHANNEL_ID fehlt")

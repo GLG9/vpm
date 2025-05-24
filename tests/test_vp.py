@@ -13,7 +13,6 @@ os.environ.setdefault('PLAN_CHANNEL_ID', '1')
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-import importlib
 import vp_10e_plan as vp
 import bot_with_plan_monitor as bot
 
