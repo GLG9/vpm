@@ -20,6 +20,10 @@ Dieser Bot überwacht den Vertretungsplan einer Schule und sendet Änderungen in
    DISCORD_TOKEN=...
    PLAN_CHANNEL_ID=...
    ```
+   # optionale Einstellungen
+   SHOW_TICK=false   # Kopfzeile bei jedem Tick senden
+   SHOW_RES=false    # XML-Auszug der Klasse 10E ins Log schreiben
+   FAKE_DATE=YYYYMMDD  # Testdatum statt heutigem Datum
 4. Tests ausführen: `pytest`.
 5. Bot starten: `python bot_with_plan_monitor.py`.
 
