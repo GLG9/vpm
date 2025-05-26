@@ -92,6 +92,23 @@ PF = lambda d: DIR / f"{d:%Y%m%d}.json"
 load_json = lambda d: json.loads(PF(d).read_text()) if PF(d).exists() else None
 save_json = lambda d, p: PF(d).write_text(json.dumps(p, ensure_ascii=False, indent=2))
 
+# Pfad und Speicherung für gefilterte XML-Dateien
+XML_PF = lambda d, n=1: DIR / f"{d:%Y%m%d}{'' if n == 1 else '_' + str(n)}.xml"
+
+def _next_xml_path(day: dt.date) -> pathlib.Path:
+    n = 1
+    p = XML_PF(day, n)
+    while p.exists():
+        n += 1
+        p = XML_PF(day, n)
+    return p
+
+def save_xml(day: dt.date, xml_str: str | None) -> None:
+    if not xml_str:
+        return
+    path = _next_xml_path(day)
+    path.write_text(xml_str, encoding="utf-8")
+
 def last_schooldays(n: int = 10) -> Set[str]:
     days, cur = [], dt.date.today()
     while len(days) < n:
@@ -102,10 +119,10 @@ def last_schooldays(n: int = 10) -> Set[str]:
 
 def prune_logs(n: int = 10) -> None:
     keep = last_schooldays(n)
-    for f in DIR.glob("*.json"):
+    for f in list(DIR.glob("*.json")) + list(DIR.glob("*.xml")):
         name = f.stem
         try:
-            d = dt.datetime.strptime(name, "%Y%m%d").date()
+            d = dt.datetime.strptime(name.split("_")[0], "%Y%m%d").date()
         except ValueError:
             continue
         if name not in keep and d < dt.date.today():
@@ -218,7 +235,8 @@ async def check() -> None:
         # übertragen wurde → ParseError).  Dann Tag überspringen.
         # ------------------------------------------------------------
         try:
-            mine = [e for e in vp.parse_xml(xml_bytes) if vp.mine(e)]
+            rows_all = vp.parse_xml(xml_bytes)
+            mine = [e for e in rows_all if vp.mine(e)]
         except ET.ParseError as err:
             logging.warning(
                 "Ungültiges XML für %s – Plan wird übersprungen (%s)",
@@ -230,6 +248,7 @@ async def check() -> None:
 
         if prev is None:
             save_json(day, mine)
+            save_xml(day, vp.filtered_xml(xml_bytes))
             out.append(f"📅 {day:%d.%m.%Y} – neuer Plan ({len(mine)})")
             logging.info(f"[Neuer Plan] {day:%Y-%m-%d} – {len(mine)} Einträge geladen")
             continue
@@ -279,6 +298,7 @@ async def check() -> None:
             out.append(block)
             logging.info(f"[Planänderung] {day:%Y-%m-%d}\n" + "\n".join(rc_msgs))
             save_json(day, mine)
+            save_xml(day, vp.filtered_xml(xml_bytes))
 
 
     prune_logs(10)
