@@ -15,6 +15,7 @@ sys.path.insert(0, str(ROOT))
 
 import vp_10e_plan as vp
 import bot_with_plan_monitor as bot
+import xml.etree.ElementTree as ET
 
 def test_parse_xml_basic():
     xml = b"""<?xml version='1.0' encoding='utf-8'?>\n"""
@@ -121,3 +122,23 @@ def test_canon_and_room_change():
     new = {"stunde": 1, "fach": "MAT", "kurs": None, "lehrer": "FELD", "raum": "114"}
     assert bot.room_change(old, new) == 'Raum\u00e4nderung: Stunde 1 MAT 115 \u2192 114'
     assert bot.room_change(old, old) is None
+
+
+def test_filtered_xml():
+    xml = b"""<?xml version='1.0' encoding='utf-8'?>\n"""
+    xml += b"<root>\n"
+    xml += b"  <Kl>\n"
+    xml += b"    <Kurz>10E</Kurz>\n"
+    xml += b"    <Pl>\n"
+    xml += b"      <Std><St>1</St><Fa>MAT</Fa><Le>FELD</Le></Std>\n"
+    xml += b"      <Std><St>2</St><Fa>MUS</Fa><Le>HANS</Le></Std>\n"
+    xml += b"      <Std><St>3</St><Fa>INF1</Fa><Ku2>INF1</Ku2><If>selbst.</If></Std>\n"
+    xml += b"    </Pl>\n"
+    xml += b"  </Kl>\n"
+    xml += b"</root>\n"
+
+    result = vp.filtered_xml(xml)
+    assert result is not None
+    kl = ET.fromstring(result)
+    stds = kl.findall('.//Std')
+    assert len(stds) == 2  # MUS sollte entfernt sein

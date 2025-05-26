@@ -17,6 +17,7 @@ from dotenv import load_dotenv   #  NEU
 __all__ = [
     "lade_plan",
     "parse_xml",
+    "filtered_xml",
     "mine",  # Alias auf keep()
 ]
 
@@ -130,6 +131,34 @@ def parse_xml(xml_bytes: bytes, klasse: str = "10E") -> List[dict]:
             "info":   info,
         })
     return rows
+
+
+def filtered_xml(xml_bytes: bytes, klasse: str = "10E") -> str | None:
+    """Gibt den XML-Block der Klasse gefiltert auf relevante Stunden zurück."""
+
+    try:
+        root = ET.fromstring(xml_bytes)
+    except ET.ParseError:
+        return None
+
+    kl = next(
+        (k for k in root.findall(".//Kl") if (k.findtext("Kurz") or "").strip().upper() == klasse.upper()),
+        None,
+    )
+    if kl is None:
+        return None
+
+    pl = kl.find("Pl")
+    if pl is None:
+        return None
+
+    rows = parse_xml(xml_bytes, klasse)
+    std_nodes = pl.findall("Std")
+    for row, node in list(zip(rows, std_nodes)):
+        if not mine(row):
+            pl.remove(node)
+
+    return ET.tostring(kl, encoding="unicode")
 
 
 # ---------------------------------------------------------------------------
