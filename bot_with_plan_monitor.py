@@ -219,12 +219,19 @@ async def check() -> None:
         # ------------------------------------------------------------
         try:
             mine = [e for e in vp.parse_xml(xml_bytes) if vp.mine(e)]
-        except ET.ParseError as err:
-            logging.warning(
-                "Ungültiges XML für %s – Plan wird übersprungen (%s)",
-                day, err,
-            )
-            continue
+        except ET.ParseError:
+            # XML kann bei Verbindungsproblemen unvollständig sein -> nochmal versuchen
+            logging.warning("Ungültiges XML für %s – neuer Versuch", day)
+            try:
+                xml_bytes = await asyncio.to_thread(vp.lade_plan, day)
+                mine = [e for e in vp.parse_xml(xml_bytes) if vp.mine(e)]
+            except (ET.ParseError, requests.HTTPError) as err:
+                logging.warning(
+                    "Ungültiges XML für %s – Plan wird übersprungen (%s)",
+                    day,
+                    err,
+                )
+                continue
 
         prev = load_json(day)
 
@@ -333,7 +340,11 @@ async def _send(ctx: commands.Context, day: dt.date, title: str) -> None:
         await ctx.send("Plan nicht verfügbar.")
         return
 
-    mine = [e for e in vp.parse_xml(xml_bytes) if vp.mine(e)]
+    try:
+        mine = [e for e in vp.parse_xml(xml_bytes) if vp.mine(e)]
+    except ET.ParseError:
+        await ctx.send("Plan konnte nicht gelesen werden.")
+        return
     if not mine:
         await ctx.send("Keine Stunden für deine Kurse.")
         return
