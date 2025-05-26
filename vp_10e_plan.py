@@ -64,9 +64,11 @@ MY_COURSES: set[tuple[str, str]] = {
 MY_KURSE: set[str] = {k for k, _ in MY_COURSES}
 MY_LEHRER: set[str] = {l for _, l in MY_COURSES}
 SUBJECTS:  set[str] = {f for f, _ in MY_COURSES}
-INFO_RE = re.compile(
-    "|".join(re.escape(x) for x in MY_KURSE | MY_LEHRER), re.IGNORECASE
-)
+
+# Nur Kurskürzel für die Info-Suche verwenden. Dadurch werden Einträge wie
+# "KUN5 RAUE" nicht versehentlich berücksichtigt, nur weil der Lehrername
+# vorkommt.
+INFO_RE = re.compile("|".join(re.escape(x) for x in MY_KURSE), re.IGNORECASE)
 
 
 # ---------------------------------------------------------------------------
@@ -180,7 +182,7 @@ def keep(e: dict) -> bool:
 
     # Ausfall-Zeile: fach == '---'
     if fach == "---":
-        return (
+        return bool(
             kurs in MY_KURSE
             or kurs in SUBJECTS      # z. B. "DEU"
             or INFO_RE.search(info)

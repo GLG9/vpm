@@ -252,10 +252,14 @@ async def check() -> None:
                 continue
 
         prev = load_json(day)
+        xml_first = not any(DIR.glob(f"{day:%Y%m%d}*.xml"))
+        xml_str = vp.filtered_xml(xml_bytes)
+        if xml_first:
+            save_xml(day, xml_str)
 
         if prev is None:
             save_json(day, mine)
-            save_xml(day, vp.filtered_xml(xml_bytes))
+            save_xml(day, xml_str)
             out.append(f"📅 {day:%d.%m.%Y} – neuer Plan ({len(mine)})")
             logging.info(f"[Neuer Plan] {day:%Y-%m-%d} – {len(mine)} Einträge geladen")
             continue
@@ -305,7 +309,7 @@ async def check() -> None:
             out.append(block)
             logging.info(f"[Planänderung] {day:%Y-%m-%d}\n" + "\n".join(rc_msgs))
             save_json(day, mine)
-            save_xml(day, vp.filtered_xml(xml_bytes))
+            save_xml(day, xml_str)
 
 
     prune_logs(10)

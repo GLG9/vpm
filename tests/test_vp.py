@@ -142,3 +142,31 @@ def test_filtered_xml():
     kl = ET.fromstring(result)
     stds = kl.findall('.//Std')
     assert len(stds) == 2  # MUS sollte entfernt sein
+
+
+def test_ignore_unrelated_kun_raue():
+    entry = {
+        "stunde": 1,
+        "beginn": None,
+        "ende": None,
+        "fach": "KUN5",
+        "kurs": None,
+        "lehrer": "RAUE",
+        "raum": None,
+        "info": None,
+    }
+    assert vp.keep(entry) is False
+
+
+def test_ignore_info_only_teacher():
+    entry = {
+        "stunde": 1,
+        "beginn": None,
+        "ende": None,
+        "fach": "---",
+        "kurs": "KUN5",
+        "lehrer": None,
+        "raum": None,
+        "info": "Vertretung RAUE",
+    }
+    assert vp.keep(entry) is False
