@@ -170,3 +170,20 @@ def test_ignore_info_only_teacher():
         "info": "Vertretung RAUE",
     }
     assert vp.keep(entry) is False
+
+def test_save_xml_dedup(monkeypatch, tmp_path):
+    day = dt.date(2025, 5, 28)
+    monkeypatch.setattr(bot, "DIR", tmp_path)
+    monkeypatch.setattr(bot, "XML_PF", lambda d, n=1: tmp_path / f"{d:%Y%m%d}{'' if n == 1 else '_' + str(n)}.xml")
+
+    bot.save_xml(day, "<a/>")
+    assert (tmp_path / "20250528.xml").exists()
+
+    # same content should not create a new file
+    bot.save_xml(day, "<a/>")
+    assert not (tmp_path / "20250528_2.xml").exists()
+
+    # different content -> new file
+    bot.save_xml(day, "<b/>")
+    assert (tmp_path / "20250528_2.xml").exists()
+

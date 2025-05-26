@@ -106,6 +106,15 @@ def _next_xml_path(day: dt.date) -> pathlib.Path:
 def save_xml(day: dt.date, xml_str: str | None) -> None:
     if not xml_str:
         return
+
+    existing = sorted(DIR.glob(f"{day:%Y%m%d}*.xml"))
+    if existing:
+        try:
+            if existing[-1].read_text(encoding="utf-8") == xml_str:
+                return
+        except OSError:
+            pass
+
     path = _next_xml_path(day)
     path.write_text(xml_str, encoding="utf-8")
 
