@@ -9,7 +9,7 @@ os.environ.setdefault('VP_PASS', 'pass')
 os.environ.setdefault('VP_BASE_URL', 'https://example.com')
 os.environ.setdefault('DISCORD_TOKEN', 'token')
 os.environ.setdefault('PLAN_CHANNEL_ID', '1')
-os.environ.setdefault('CHECK_SECONDS', '30')
+os.environ.setdefault('CHECK_SECONDS', '60')
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))

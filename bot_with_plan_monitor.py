@@ -31,9 +31,9 @@ load_dotenv()
 
 # Intervall für den Plan-Check aus der Umgebung laden
 try:
-    CHECK_SECONDS: float = float(os.getenv("CHECK_SECONDS", "30"))
+    CHECK_SECONDS: float = float(os.getenv("CHECK_SECONDS", "60"))
 except ValueError:
-    CHECK_SECONDS = 30.0
+    CHECK_SECONDS = 60.0
 
 def _canon(s: str) -> str:
     """Unicode-normalisieren, überflüssige Leerzeichen killen."""
