@@ -1,0 +1,11 @@
+.env
+#.gitignore
+#*.json
+#*.log
+__*
+*.pyc
+#discord.log
+#error.log
+#alerts.json
+#last_digest.txt
+__pycache__/vp_10e_plan.cpython-312.pyc
