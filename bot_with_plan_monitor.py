@@ -29,6 +29,12 @@ import vp_10e_plan as vp
 vp.mine = vp.keep
 load_dotenv()
 
+# Intervall für den Plan-Check aus der Umgebung laden
+try:
+    CHECK_SECONDS: float = float(os.getenv("CHECK_SECONDS", "30"))
+except ValueError:
+    CHECK_SECONDS = 30.0
+
 def _canon(s: str) -> str:
     """Unicode-normalisieren, überflüssige Leerzeichen killen."""
     return _ud.normalize("NFC", " ".join(s.split()))
@@ -223,7 +229,7 @@ def room_change(old: dict, new: dict) -> Optional[str]:
 # ---------------------------------------------------------------------------
 # Haupt-Task
 # ---------------------------------------------------------------------------
-@tasks.loop(seconds=30)
+@tasks.loop(seconds=CHECK_SECONDS)
 async def check() -> None:
     ch = bot.get_channel(CHANNEL_ID)
     if ch is None:

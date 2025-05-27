@@ -21,6 +21,7 @@ Dieser Bot überwacht den Vertretungsplan einer Schule und sendet Änderungen in
    PLAN_CHANNEL_ID=...
    ```
    # optionale Einstellungen
+   CHECK_SECONDS=30   # wie oft der Plan abgefragt wird
    SHOW_TICK=false   # Kopfzeile bei jedem Tick senden
    SHOW_RES=false    # XML-Auszug der Klasse 10E ins Log schreiben
    FAKE_DATE=YYYYMMDD  # Testdatum statt heutigem Datum
