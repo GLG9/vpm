@@ -70,6 +70,39 @@ def test_parse_xml_basic():
         },
     ]
 
+def test_parse_xml_self_with_room():
+    xml = b"""<?xml version='1.0' encoding='utf-8'?>\n"""
+    xml += b"<root>\n"
+    xml += b"  <Kl>\n"
+    xml += b"    <Kurz>10E</Kurz>\n"
+    xml += b"    <Pl>\n"
+    xml += b"      <Std>\n"
+    xml += b"        <St>1</St>\n"
+    xml += b"        <Beginn></Beginn>\n"
+    xml += b"        <Ende></Ende>\n"
+    xml += b"        <Fa>KUN4</Fa>\n"
+    xml += b"        <Ku2>KUN4</Ku2>\n"
+    xml += b"        <Le></Le>\n"
+    xml += b"        <Ra>136</Ra>\n"
+    xml += b"        <If>selbst. (a), Aufgaben erteilt.</If>\n"
+    xml += b"      </Std>\n"
+    xml += b"    </Pl>\n"
+    xml += b"  </Kl>\n"
+    xml += b"</root>\n"
+    rows = vp.parse_xml(xml)
+    assert rows == [
+        {
+            "stunde": 1,
+            "beginn": None,
+            "ende": None,
+            "fach": "---",
+            "kurs": "KUN4",
+            "lehrer": None,
+            "raum": "136",
+            "info": "selbst. (a), Aufgaben erteilt.",
+        }
+    ]
+
 def test_keep_filtering():
     entry_relevant = {
         "stunde": 1,
