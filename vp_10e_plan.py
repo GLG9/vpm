@@ -17,6 +17,7 @@ from dotenv import load_dotenv   #  NEU
 __all__ = [
     "lade_plan",
     "parse_xml",
+    "filtered_xml",
     "mine",  # Alias auf keep()
 ]
 
@@ -63,9 +64,11 @@ MY_COURSES: set[tuple[str, str]] = {
 MY_KURSE: set[str] = {k for k, _ in MY_COURSES}
 MY_LEHRER: set[str] = {l for _, l in MY_COURSES}
 SUBJECTS:  set[str] = {f for f, _ in MY_COURSES}
-INFO_RE = re.compile(
-    "|".join(re.escape(x) for x in MY_KURSE | MY_LEHRER), re.IGNORECASE
-)
+
+# Nur Kurskürzel für die Info-Suche verwenden. Dadurch werden Einträge wie
+# "KUN5 RAUE" nicht versehentlich berücksichtigt, nur weil der Lehrername
+# vorkommt.
+INFO_RE = re.compile("|".join(re.escape(x) for x in MY_KURSE), re.IGNORECASE)
 
 
 # ---------------------------------------------------------------------------
@@ -132,6 +135,34 @@ def parse_xml(xml_bytes: bytes, klasse: str = "10E") -> List[dict]:
     return rows
 
 
+def filtered_xml(xml_bytes: bytes, klasse: str = "10E") -> str | None:
+    """Gibt den XML-Block der Klasse gefiltert auf relevante Stunden zurück."""
+
+    try:
+        root = ET.fromstring(xml_bytes)
+    except ET.ParseError:
+        return None
+
+    kl = next(
+        (k for k in root.findall(".//Kl") if (k.findtext("Kurz") or "").strip().upper() == klasse.upper()),
+        None,
+    )
+    if kl is None:
+        return None
+
+    pl = kl.find("Pl")
+    if pl is None:
+        return None
+
+    rows = parse_xml(xml_bytes, klasse)
+    std_nodes = pl.findall("Std")
+    for row, node in list(zip(rows, std_nodes)):
+        if not mine(row):
+            pl.remove(node)
+
+    return ET.tostring(kl, encoding="unicode")
+
+
 # ---------------------------------------------------------------------------
 # Filterfunktion (wird vom Bot überschrieben, falls gewünscht)
 # ---------------------------------------------------------------------------
@@ -151,7 +182,7 @@ def keep(e: dict) -> bool:
 
     # Ausfall-Zeile: fach == '---'
     if fach == "---":
-        return (
+        return bool(
             kurs in MY_KURSE
             or kurs in SUBJECTS      # z. B. "DEU"
             or INFO_RE.search(info)

@@ -18,6 +18,7 @@ import logging
 import os
 import pathlib
 from typing import Dict, List, Set, Optional   # ← bleibt gleich, aber …
+import xml.etree.ElementTree as ET  # nur für den ParseError-Catch
 
 import discord
 import requests
@@ -50,7 +51,6 @@ if _fake:
         logging.info("FAKE_DATE aktiv: %s", _fake)
     except ValueError:
         logging.warning("Ungültige FAKE_DATE=%s – echtes Datum wird benutzt", _fake)
-
 
 
 ######
@@ -91,6 +91,32 @@ PF = lambda d: DIR / f"{d:%Y%m%d}.json"
 load_json = lambda d: json.loads(PF(d).read_text()) if PF(d).exists() else None
 save_json = lambda d, p: PF(d).write_text(json.dumps(p, ensure_ascii=False, indent=2))
 
+# Pfad und Speicherung für gefilterte XML-Dateien
+XML_PF = lambda d, n=1: DIR / f"{d:%Y%m%d}{'' if n == 1 else '_' + str(n)}.xml"
+
+def _next_xml_path(day: dt.date) -> pathlib.Path:
+    n = 1
+    p = XML_PF(day, n)
+    while p.exists():
+        n += 1
+        p = XML_PF(day, n)
+    return p
+
+def save_xml(day: dt.date, xml_str: str | None) -> None:
+    if not xml_str:
+        return
+
+    existing = sorted(DIR.glob(f"{day:%Y%m%d}*.xml"))
+    if existing:
+        try:
+            if existing[-1].read_text(encoding="utf-8") == xml_str:
+                return
+        except OSError:
+            pass
+
+    path = _next_xml_path(day)
+    path.write_text(xml_str, encoding="utf-8")
+
 def last_schooldays(n: int = 10) -> Set[str]:
     days, cur = [], dt.date.today()
     while len(days) < n:
@@ -101,10 +127,10 @@ def last_schooldays(n: int = 10) -> Set[str]:
 
 def prune_logs(n: int = 10) -> None:
     keep = last_schooldays(n)
-    for f in DIR.glob("*.json"):
+    for f in list(DIR.glob("*.json")) + list(DIR.glob("*.xml")):
         name = f.stem
         try:
-            d = dt.datetime.strptime(name, "%Y%m%d").date()
+            d = dt.datetime.strptime(name.split("_")[0], "%Y%m%d").date()
         except ValueError:
             continue
         if name not in keep and d < dt.date.today():
@@ -158,6 +184,11 @@ def fmt(e: dict) -> str:
 def room_change(old: dict, new: dict) -> Optional[str]:
     ko, kn = (old.get("kurs") or old.get("fach") or "").upper(), (new.get("kurs") or new.get("fach") or "").upper()
     ro, rn = (old.get("raum") or "").strip().upper(), (new.get("raum") or "").strip().upper()
+
+    # ignore if the new entry doesn't specify a room
+    if not rn:
+        return None
+
     if old["stunde"] == new["stunde"] and ko == kn and ro != rn:
         return f"Raumänderung: Stunde {new['stunde']} {kn} {old.get('raum') or '---'} → {new.get('raum') or '---'}"
     return None
@@ -165,7 +196,7 @@ def room_change(old: dict, new: dict) -> Optional[str]:
 # ---------------------------------------------------------------------------
 # Haupt-Task
 # ---------------------------------------------------------------------------
-@tasks.loop(seconds=60)
+@tasks.loop(seconds=30)
 async def check() -> None:
     ch = bot.get_channel(CHANNEL_ID)
     if ch is None:
@@ -192,12 +223,11 @@ async def check() -> None:
         day_offset += 1
         try:
             # lade rohe XML
-            xml = await asyncio.to_thread(vp.lade_plan, day)
+            xml_bytes = await asyncio.to_thread(vp.lade_plan, day)
             misses = 0
             if SHOW_RES:
                 # nur den <Kl Kurz="10E">-Block extrahieren und loggen
-                import xml.etree.ElementTree as ET
-                root = ET.fromstring(xml)
+                root = ET.fromstring(xml_bytes)
                 kl10e = next(
                     (k for k in root.findall(".//Kl")
                     if (k.findtext("Kurz") or "").strip().upper() == "10E"),
@@ -213,13 +243,36 @@ async def check() -> None:
             logging.exception("HTTP-Fehler")
             break
 
-        # parse erst nach dem Logging
-        mine = [e for e in vp.parse_xml(xml) if vp.mine(e)]
+        # ------------------------------------------------------------
+        # XML parsen  (kann fehlschlagen, wenn die Datei unvollständig
+        # übertragen wurde → ParseError).  Dann Tag überspringen.
+        # ------------------------------------------------------------
+        try:
+            rows_all = vp.parse_xml(xml_bytes)
+            mine = [e for e in rows_all if vp.mine(e)]
+        except ET.ParseError:
+            # XML kann bei Verbindungsproblemen unvollständig sein -> nochmal versuchen
+            logging.warning("Ungültiges XML für %s – neuer Versuch", day)
+            try:
+                xml_bytes = await asyncio.to_thread(vp.lade_plan, day)
+                mine = [e for e in vp.parse_xml(xml_bytes) if vp.mine(e)]
+            except (ET.ParseError, requests.HTTPError) as err:
+                logging.warning(
+                    "Ungültiges XML für %s – Plan wird übersprungen (%s)",
+                    day,
+                    err,
+                )
+                continue
 
         prev = load_json(day)
+        xml_first = not any(DIR.glob(f"{day:%Y%m%d}*.xml"))
+        xml_str = vp.filtered_xml(xml_bytes)
+        if xml_first:
+            save_xml(day, xml_str)
 
         if prev is None:
             save_json(day, mine)
+            save_xml(day, xml_str)
             out.append(f"📅 {day:%d.%m.%Y} – neuer Plan ({len(mine)})")
             logging.info(f"[Neuer Plan] {day:%Y-%m-%d} – {len(mine)} Einträge geladen")
             continue
@@ -269,6 +322,7 @@ async def check() -> None:
             out.append(block)
             logging.info(f"[Planänderung] {day:%Y-%m-%d}\n" + "\n".join(rc_msgs))
             save_json(day, mine)
+            save_xml(day, xml_str)
 
 
     prune_logs(10)
@@ -315,7 +369,7 @@ async def check() -> None:
 # ---------------------------------------------------------------------------
 async def _send(ctx: commands.Context, day: dt.date, title: str) -> None:
     try:
-        xml = await asyncio.to_thread(vp.lade_plan, day)
+        xml_bytes = await asyncio.to_thread(vp.lade_plan, day)
     except requests.HTTPError as e:
         if e.response.status_code == 404:
             await ctx.send(f"{title} ist Frei :)")
@@ -323,7 +377,11 @@ async def _send(ctx: commands.Context, day: dt.date, title: str) -> None:
         await ctx.send("Plan nicht verfügbar.")
         return
 
-    mine = [e for e in vp.parse_xml(xml) if vp.mine(e)]
+    try:
+        mine = [e for e in vp.parse_xml(xml_bytes) if vp.mine(e)]
+    except ET.ParseError:
+        await ctx.send("Plan konnte nicht gelesen werden.")
+        return
     if not mine:
         await ctx.send("Keine Stunden für deine Kurse.")
         return

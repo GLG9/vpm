@@ -15,6 +15,7 @@ sys.path.insert(0, str(ROOT))
 
 import vp_10e_plan as vp
 import bot_with_plan_monitor as bot
+import xml.etree.ElementTree as ET
 
 def test_parse_xml_basic():
     xml = b"""<?xml version='1.0' encoding='utf-8'?>\n"""
@@ -121,3 +122,72 @@ def test_canon_and_room_change():
     new = {"stunde": 1, "fach": "MAT", "kurs": None, "lehrer": "FELD", "raum": "114"}
     assert bot.room_change(old, new) == 'Raum\u00e4nderung: Stunde 1 MAT 115 \u2192 114'
     assert bot.room_change(old, old) is None
+
+def test_room_change_ignores_missing_new_room():
+    old = {"stunde": 1, "fach": "MAT", "kurs": None, "lehrer": "FELD", "raum": "115"}
+    new = {"stunde": 1, "fach": "MAT", "kurs": None, "lehrer": "FELD", "raum": None}
+    assert bot.room_change(old, new) is None
+
+def test_filtered_xml():
+    xml = b"""<?xml version='1.0' encoding='utf-8'?>\n"""
+    xml += b"<root>\n"
+    xml += b"  <Kl>\n"
+    xml += b"    <Kurz>10E</Kurz>\n"
+    xml += b"    <Pl>\n"
+    xml += b"      <Std><St>1</St><Fa>MAT</Fa><Le>FELD</Le></Std>\n"
+    xml += b"      <Std><St>2</St><Fa>MUS</Fa><Le>HANS</Le></Std>\n"
+    xml += b"      <Std><St>3</St><Fa>INF1</Fa><Ku2>INF1</Ku2><If>selbst.</If></Std>\n"
+    xml += b"    </Pl>\n"
+    xml += b"  </Kl>\n"
+    xml += b"</root>\n"
+
+    result = vp.filtered_xml(xml)
+    assert result is not None
+    kl = ET.fromstring(result)
+    stds = kl.findall('.//Std')
+    assert len(stds) == 2  # MUS sollte entfernt sein
+
+
+def test_ignore_unrelated_kun_raue():
+    entry = {
+        "stunde": 1,
+        "beginn": None,
+        "ende": None,
+        "fach": "KUN5",
+        "kurs": None,
+        "lehrer": "RAUE",
+        "raum": None,
+        "info": None,
+    }
+    assert vp.keep(entry) is False
+
+
+def test_ignore_info_only_teacher():
+    entry = {
+        "stunde": 1,
+        "beginn": None,
+        "ende": None,
+        "fach": "---",
+        "kurs": "KUN5",
+        "lehrer": None,
+        "raum": None,
+        "info": "Vertretung RAUE",
+    }
+    assert vp.keep(entry) is False
+
+def test_save_xml_dedup(monkeypatch, tmp_path):
+    day = dt.date(2025, 5, 28)
+    monkeypatch.setattr(bot, "DIR", tmp_path)
+    monkeypatch.setattr(bot, "XML_PF", lambda d, n=1: tmp_path / f"{d:%Y%m%d}{'' if n == 1 else '_' + str(n)}.xml")
+
+    bot.save_xml(day, "<a/>")
+    assert (tmp_path / "20250528.xml").exists()
+
+    # same content should not create a new file
+    bot.save_xml(day, "<a/>")
+    assert not (tmp_path / "20250528_2.xml").exists()
+
+    # different content -> new file
+    bot.save_xml(day, "<b/>")
+    assert (tmp_path / "20250528_2.xml").exists()
+

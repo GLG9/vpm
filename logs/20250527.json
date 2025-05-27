@@ -3,21 +3,21 @@
     "stunde": 1,
     "beginn": "7:15",
     "ende": "08:00",
-    "fach": "Che",
+    "fach": "Eng",
     "kurs": null,
-    "lehrer": "Gru√ü",
-    "raum": "243",
-    "info": null
+    "lehrer": "Skal",
+    "raum": "130",
+    "info": "verlegt von St.5; Che Gruﬂ f‰llt aus"
   },
   {
     "stunde": 2,
     "beginn": null,
     "ende": null,
-    "fach": "Che",
+    "fach": "Eng",
     "kurs": null,
-    "lehrer": "Gru√ü",
-    "raum": "243",
-    "info": null
+    "lehrer": "Skal",
+    "raum": "130",
+    "info": "verlegt von St.6; Che Gruﬂ f‰llt aus"
   },
   {
     "stunde": 3,
@@ -43,20 +43,20 @@
     "stunde": 5,
     "beginn": "11:00",
     "ende": "11:45",
-    "fach": "Deu",
-    "kurs": null,
-    "lehrer": "PetH",
-    "raum": "030",
-    "info": null
+    "fach": "---",
+    "kurs": "---",
+    "lehrer": null,
+    "raum": null,
+    "info": "Eng Skal verlegt nach St.1"
   },
   {
     "stunde": 6,
     "beginn": null,
     "ende": null,
-    "fach": "Deu",
-    "kurs": null,
-    "lehrer": "PetH",
-    "raum": "030",
-    "info": null
+    "fach": "---",
+    "kurs": "---",
+    "lehrer": null,
+    "raum": null,
+    "info": "Eng Skal verlegt nach St.2"
   }
 ]
