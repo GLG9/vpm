@@ -29,6 +29,12 @@ import vp_10e_plan as vp
 vp.mine = vp.keep
 load_dotenv()
 
+# Intervall für den Plan-Check aus der Umgebung laden
+try:
+    CHECK_SECONDS: float = float(os.getenv("CHECK_SECONDS", "60"))
+except ValueError:
+    CHECK_SECONDS = 60.0
+
 def _canon(s: str) -> str:
     """Unicode-normalisieren, überflüssige Leerzeichen killen."""
     return _ud.normalize("NFC", " ".join(s.split()))
@@ -88,8 +94,31 @@ DIR = pathlib.Path(__file__).with_name("logs")
 DIR.mkdir(exist_ok=True)
 
 PF = lambda d: DIR / f"{d:%Y%m%d}.json"
-load_json = lambda d: json.loads(PF(d).read_text()) if PF(d).exists() else None
-save_json = lambda d, p: PF(d).write_text(json.dumps(p, ensure_ascii=False, indent=2))
+
+def load_json(day: dt.date) -> list | None:
+    """Load a JSON log for ``day``.
+
+    Files should be UTF-8 encoded.  To be robust against older logs that might
+    have been written with a different codepage, a latin-1 fallback is used
+    when UTF-8 decoding fails.
+    """
+
+    path = PF(day)
+    if not path.exists():
+        return None
+    try:
+        raw = path.read_text(encoding="utf-8")
+    except UnicodeDecodeError:
+        raw = path.read_text(encoding="latin-1")
+    return json.loads(raw)
+
+def save_json(day: dt.date, payload: list) -> None:
+    """Write ``payload`` as UTF-8 encoded JSON log."""
+
+    PF(day).write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
 
 # Pfad und Speicherung für gefilterte XML-Dateien
 XML_PF = lambda d, n=1: DIR / f"{d:%Y%m%d}{'' if n == 1 else '_' + str(n)}.xml"
@@ -168,11 +197,15 @@ def save_alerts(alerts: Dict[str, Set[str]]) -> None:
     )
 
 DIGEST = DIR / "last_digest.txt"
+
 def read_digest() -> Optional[str]:
-    try: return DIGEST.read_text().strip()
-    except FileNotFoundError: return None
+    try:
+        return DIGEST.read_text(encoding="utf-8").strip()
+    except FileNotFoundError:
+        return None
+
 def write_digest(d: str) -> None:
-    DIGEST.write_text(d)
+    DIGEST.write_text(d, encoding="utf-8")
 
 # ---------------------------------------------------------------------------
 # Anzeige-Hilfen
@@ -196,7 +229,7 @@ def room_change(old: dict, new: dict) -> Optional[str]:
 # ---------------------------------------------------------------------------
 # Haupt-Task
 # ---------------------------------------------------------------------------
-@tasks.loop(seconds=30)
+@tasks.loop(seconds=CHECK_SECONDS)
 async def check() -> None:
     ch = bot.get_channel(CHANNEL_ID)
     if ch is None:
