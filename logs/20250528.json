@@ -23,16 +23,26 @@
     "stunde": 3,
     "beginn": "9:05",
     "ende": "09:50",
-    "fach": "kun4",
-    "kurs": "kun4",
-    "lehrer": "Raue",
-    "raum": "136",
-    "info": null
+    "fach": "---",
+    "kurs": "inf1",
+    "lehrer": null,
+    "raum": null,
+    "info": "selbst."
   },
   {
     "stunde": 3,
     "beginn": "9:05",
     "ende": "09:50",
+    "fach": "kun4",
+    "kurs": "kun4",
+    "lehrer": null,
+    "raum": "136",
+    "info": "selbst. (a), Aufgaben erteilt."
+  },
+  {
+    "stunde": 4,
+    "beginn": null,
+    "ende": null,
     "fach": "---",
     "kurs": "inf1",
     "lehrer": null,
@@ -45,19 +55,9 @@
     "ende": null,
     "fach": "kun4",
     "kurs": "kun4",
-    "lehrer": "Raue",
-    "raum": "136",
-    "info": null
-  },
-  {
-    "stunde": 4,
-    "beginn": null,
-    "ende": null,
-    "fach": "---",
-    "kurs": "inf1",
     "lehrer": null,
-    "raum": null,
-    "info": "selbst."
+    "raum": "136",
+    "info": "selbst. (a), Aufgaben erteilt."
   },
   {
     "stunde": 5,
@@ -67,7 +67,7 @@
     "kurs": "eth3",
     "lehrer": null,
     "raum": null,
-    "info": "eth3 Mada fÃ¤llt aus"
+    "info": "eth3 Mada fällt aus"
   },
   {
     "stunde": 6,
@@ -77,6 +77,6 @@
     "kurs": "eth3",
     "lehrer": null,
     "raum": null,
-    "info": "eth3 Mada fÃ¤llt aus"
+    "info": "eth3 Mada fällt aus"
   }
 ]

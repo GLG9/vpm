@@ -1,200 +1,48 @@
-2025-05-19 08:16:26,379 WARNING: PyNaCl is not installed, voice will NOT be supported
-2025-05-19 08:16:26,380 INFO: logging in using static token
-2025-05-19 08:16:27,581 INFO: Shard ID None has connected to Gateway (Session ID: 0c182ad8f96b96295446696a604c8d01).
-2025-05-19 08:32:45,705 WARNING: PyNaCl is not installed, voice will NOT be supported
-2025-05-19 08:32:45,706 INFO: logging in using static token
-2025-05-19 08:32:46,696 INFO: Shard ID None has connected to Gateway (Session ID: 45f326583ac2b157170bec6661165bd4).
-2025-05-19 10:18:18,191 INFO: Shard ID None has successfully RESUMED session 45f326583ac2b157170bec6661165bd4.
-2025-05-19 11:37:40,192 INFO: Shard ID None has successfully RESUMED session 45f326583ac2b157170bec6661165bd4.
-2025-05-19 11:57:33,143 INFO: Shard ID None has successfully RESUMED session 45f326583ac2b157170bec6661165bd4.
-2025-05-19 13:12:21,935 INFO: Shard ID None has successfully RESUMED session 45f326583ac2b157170bec6661165bd4.
-2025-05-19 13:42:38,494 INFO: Shard ID None has successfully RESUMED session 45f326583ac2b157170bec6661165bd4.
-2025-05-19 13:46:50,150 ERROR: HTTP-Fehler
-Traceback (most recent call last):
-  File "/root/vpm/bot_with_plan_monitor.py", line 198, in check
-    xml = await asyncio.to_thread(vp.lade_plan, day)
-          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/lib/python3.11/asyncio/threads.py", line 25, in to_thread
-    return await loop.run_in_executor(None, func_call)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/lib/python3.11/concurrent/futures/thread.py", line 58, in run
-    result = self.fn(*self.args, **self.kwargs)
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/root/vpm/vp_10e_plan.py", line 80, in lade_plan
-    r.raise_for_status()
-  File "/usr/lib/python3/dist-packages/requests/models.py", line 1021, in raise_for_status
-    raise HTTPError(http_error_msg, response=self)
-requests.exceptions.HTTPError: 503 Server Error: Service Unavailable for url: https://www.kjf-gym.de/vp/vplansmobile/mobdaten/PlanKl20250524.xml
-2025-05-19 14:18:16,803 INFO: Shard ID None has successfully RESUMED session 45f326583ac2b157170bec6661165bd4.
-2025-05-19 14:54:53,051 INFO: Shard ID None has successfully RESUMED session 45f326583ac2b157170bec6661165bd4.
-2025-05-19 15:08:00,509 ERROR: HTTP-Fehler
-Traceback (most recent call last):
-  File "/root/vpm/bot_with_plan_monitor.py", line 198, in check
-    xml = await asyncio.to_thread(vp.lade_plan, day)
-          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/lib/python3.11/asyncio/threads.py", line 25, in to_thread
-    return await loop.run_in_executor(None, func_call)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/lib/python3.11/concurrent/futures/thread.py", line 58, in run
-    result = self.fn(*self.args, **self.kwargs)
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/root/vpm/vp_10e_plan.py", line 80, in lade_plan
-    r.raise_for_status()
-  File "/usr/lib/python3/dist-packages/requests/models.py", line 1021, in raise_for_status
-    raise HTTPError(http_error_msg, response=self)
-requests.exceptions.HTTPError: 503 Server Error: Service Unavailable for url: https://www.kjf-gym.de/vp/vplansmobile/mobdaten/PlanKl20250603.xml
-2025-05-19 15:49:41,222 INFO: Shard ID None has successfully RESUMED session 45f326583ac2b157170bec6661165bd4.
-2025-05-19 16:09:16,977 INFO: Shard ID None has successfully RESUMED session 45f326583ac2b157170bec6661165bd4.
-2025-05-19 16:42:19,428 INFO: Shard ID None has successfully RESUMED session 45f326583ac2b157170bec6661165bd4.
-2025-05-19 16:43:27,255 INFO: Shard ID None has successfully RESUMED session 45f326583ac2b157170bec6661165bd4.
-2025-05-19 17:14:34,500 INFO: Shard ID None has successfully RESUMED session 45f326583ac2b157170bec6661165bd4.
-2025-05-19 17:32:25,883 INFO: Shard ID None has successfully RESUMED session 45f326583ac2b157170bec6661165bd4.
-2025-05-19 17:34:54,703 INFO: Shard ID None has successfully RESUMED session 45f326583ac2b157170bec6661165bd4.
-2025-05-19 17:38:18,533 INFO: Shard ID None has successfully RESUMED session 45f326583ac2b157170bec6661165bd4.
-2025-05-19 19:26:18,262 INFO: Shard ID None has successfully RESUMED session 45f326583ac2b157170bec6661165bd4.
-2025-05-19 19:40:30,315 INFO: Shard ID None has successfully RESUMED session 45f326583ac2b157170bec6661165bd4.
-2025-05-19 19:47:27,452 INFO: Shard ID None has successfully RESUMED session 45f326583ac2b157170bec6661165bd4.
-2025-05-19 20:01:48,527 INFO: Shard ID None has successfully RESUMED session 45f326583ac2b157170bec6661165bd4.
-2025-05-19 20:34:32,268 INFO: Shard ID None has successfully RESUMED session 45f326583ac2b157170bec6661165bd4.
-2025-05-19 21:04:01,050 INFO: Shard ID None has successfully RESUMED session 45f326583ac2b157170bec6661165bd4.
-2025-05-19 21:29:34,536 INFO: Shard ID None has successfully RESUMED session 45f326583ac2b157170bec6661165bd4.
-2025-05-19 21:54:01,259 INFO: Shard ID None has successfully RESUMED session 45f326583ac2b157170bec6661165bd4.
-2025-05-19 22:01:52,374 INFO: Shard ID None has successfully RESUMED session 45f326583ac2b157170bec6661165bd4.
-2025-05-19 23:47:00,957 INFO: Shard ID None has successfully RESUMED session 45f326583ac2b157170bec6661165bd4.
-2025-05-20 01:34:38,674 INFO: Shard ID None has successfully RESUMED session 45f326583ac2b157170bec6661165bd4.
-2025-05-20 05:19:20,100 INFO: Shard ID None has successfully RESUMED session 45f326583ac2b157170bec6661165bd4.
-2025-05-20 06:36:48,885 ERROR: Unhandled exception in internal background task 'check'.
-Traceback (most recent call last):
-  File "/usr/local/lib/python3.11/dist-packages/discord/ext/tasks/__init__.py", line 246, in _loop
-    await self.coro(*args, **kwargs)
-  File "/root/vpm/bot_with_plan_monitor.py", line 220, in check
-    mine = [e for e in vp.parse_xml(xml) if vp.mine(e)]
-                       ^^^^^^^^^^^^^^^^^
-  File "/root/vpm/vp_10e_plan.py", line 87, in parse_xml
-    root = ET.fromstring(xml_bytes)
-           ^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/lib/python3.11/xml/etree/ElementTree.py", line 1339, in XML
-    return parser.close()
-           ^^^^^^^^^^^^^^
-xml.etree.ElementTree.ParseError: no element found: line 1, column 0
-2025-05-20 07:14:57,137 INFO: Shard ID None has successfully RESUMED session 45f326583ac2b157170bec6661165bd4.
-2025-05-20 10:01:46,128 INFO: Shard ID None has successfully RESUMED session 45f326583ac2b157170bec6661165bd4.
-2025-05-20 11:51:34,845 INFO: Shard ID None has successfully RESUMED session 45f326583ac2b157170bec6661165bd4.
-2025-05-20 12:01:11,336 INFO: Shard ID None has successfully RESUMED session 45f326583ac2b157170bec6661165bd4.
-2025-05-20 12:34:10,670 INFO: Shard ID None has successfully RESUMED session 45f326583ac2b157170bec6661165bd4.
-2025-05-20 13:56:19,530 INFO: Shard ID None has successfully RESUMED session 45f326583ac2b157170bec6661165bd4.
-2025-05-20 14:15:11,128 INFO: Shard ID None has successfully RESUMED session 45f326583ac2b157170bec6661165bd4.
-2025-05-20 14:34:50,851 INFO: Shard ID None has successfully RESUMED session 45f326583ac2b157170bec6661165bd4.
-2025-05-20 14:41:18,707 INFO: Shard ID None has successfully RESUMED session 45f326583ac2b157170bec6661165bd4.
-2025-05-20 15:26:03,284 INFO: Shard ID None has successfully RESUMED session 45f326583ac2b157170bec6661165bd4.
-2025-05-20 16:24:55,164 INFO: Shard ID None has successfully RESUMED session 45f326583ac2b157170bec6661165bd4.
-2025-05-20 16:27:17,683 INFO: Shard ID None has successfully RESUMED session 45f326583ac2b157170bec6661165bd4.
-2025-05-20 16:44:41,334 INFO: Shard ID None has successfully RESUMED session 45f326583ac2b157170bec6661165bd4.
-2025-05-20 17:11:18,995 INFO: Shard ID None has successfully RESUMED session 45f326583ac2b157170bec6661165bd4.
-2025-05-20 17:31:54,800 INFO: Shard ID None has successfully RESUMED session 45f326583ac2b157170bec6661165bd4.
-2025-05-20 18:26:33,289 INFO: Shard ID None has successfully RESUMED session 45f326583ac2b157170bec6661165bd4.
-2025-05-20 19:29:11,514 INFO: Shard ID None has successfully RESUMED session 45f326583ac2b157170bec6661165bd4.
-2025-05-20 19:33:16,663 INFO: Shard ID None has successfully RESUMED session 45f326583ac2b157170bec6661165bd4.
-2025-05-20 20:34:57,432 INFO: Shard ID None has successfully RESUMED session 45f326583ac2b157170bec6661165bd4.
-2025-05-20 21:51:30,022 INFO: Shard ID None has successfully RESUMED session 45f326583ac2b157170bec6661165bd4.
-2025-05-20 21:58:43,580 INFO: Shard ID None has successfully RESUMED session 45f326583ac2b157170bec6661165bd4.
-2025-05-20 22:02:23,744 INFO: Shard ID None has successfully RESUMED session 45f326583ac2b157170bec6661165bd4.
-2025-05-20 22:26:03,875 INFO: Shard ID None has successfully RESUMED session 45f326583ac2b157170bec6661165bd4.
-2025-05-20 22:27:29,335 INFO: Shard ID None has successfully RESUMED session 45f326583ac2b157170bec6661165bd4.
-2025-05-20 22:27:57,488 INFO: Shard ID None has successfully RESUMED session 45f326583ac2b157170bec6661165bd4.
-2025-05-20 23:46:17,384 INFO: Shard ID None has successfully RESUMED session 45f326583ac2b157170bec6661165bd4.
-2025-05-21 01:53:05,221 INFO: Shard ID None has successfully RESUMED session 45f326583ac2b157170bec6661165bd4.
-2025-05-21 02:40:56,435 INFO: Shard ID None has successfully RESUMED session 45f326583ac2b157170bec6661165bd4.
-2025-05-21 03:41:41,825 INFO: Shard ID None has successfully RESUMED session 45f326583ac2b157170bec6661165bd4.
-2025-05-21 04:07:31,549 INFO: Shard ID None has successfully RESUMED session 45f326583ac2b157170bec6661165bd4.
-2025-05-21 04:19:01,299 INFO: Shard ID None has successfully RESUMED session 45f326583ac2b157170bec6661165bd4.
-2025-05-21 05:55:08,307 INFO: Shard ID None has successfully RESUMED session 45f326583ac2b157170bec6661165bd4.
-2025-05-21 06:52:15,657 WARNING: PyNaCl is not installed, voice will NOT be supported
-2025-05-21 06:52:15,658 INFO: logging in using static token
-2025-05-21 06:52:16,646 INFO: Shard ID None has connected to Gateway (Session ID: 1be4f079a8fcd6b4b61ecd47b57294c0).
-2025-05-21 06:52:19,017 INFO: [Planänderung] 2025-05-21
-• 2025-05-21 ▸ Ausfall in Stunde 5 – eth3 Mada fällt aus - eth3
-• 2025-05-21 ▸ Ausfall in Stunde 6 – eth3 Mada fällt aus - eth3
-• 2025-05-21 ▸ Raumänderung: Stunde 5 ETH3 124 → ---
-• 2025-05-21 ▸ Raumänderung: Stunde 6 ETH3 124 → ---
-2025-05-21 06:52:21,488 INFO: [Planänderung] 2025-05-26
-• 2025-05-26 ▸ Raumänderung: Stunde 3 RUS1 031 → 118
-• 2025-05-26 ▸ Raumänderung: Stunde 4 RUS1 031 → 118
-2025-05-21 06:52:21,734 INFO: [Neuer Plan] 2025-05-27 – 6 Einträge geladen
-2025-05-21 06:52:21,992 INFO: [Neuer Plan] 2025-05-28 – 8 Einträge geladen
-2025-05-21 06:53:21,670 INFO: [Planänderung] 2025-05-27
+2025-05-26 18:11:48,152 WARNING: PyNaCl is not installed, voice will NOT be supported
+2025-05-26 18:11:48,154 INFO: logging in using static token
+2025-05-26 18:11:50,848 INFO: Shard ID None has connected to Gateway (Session ID: baf85e32837791b8e848fc388f718fa1).
+2025-05-26 18:11:53,391 INFO: [Planänderung] 2025-05-28
+• 2025-05-28 ▸ Ausfall in Stunde 3 – kun4 Raue fällt aus - kun4
+• 2025-05-28 ▸ Ausfall in Stunde 4 – kun4 Raue fällt aus - kun4
+• 2025-05-28 ▸ Ausfall in Stunde 5 – kun5 Raue fällt aus - kun5
+• 2025-05-28 ▸ Ausfall in Stunde 6 – kun5 Raue fällt aus - kun5
+• 2025-05-28 ▸ Raumänderung: Stunde 3 KUN4 136 → ---
+• 2025-05-28 ▸ Raumänderung: Stunde 4 KUN4 136 → ---
+2025-05-26 18:19:45,475 WARNING: PyNaCl is not installed, voice will NOT be supported
+2025-05-26 18:19:45,479 INFO: logging in using static token
+2025-05-26 18:19:46,620 INFO: Shard ID None has connected to Gateway (Session ID: 4caec1656c6ec07d728d7f43b4cb5737).
+2025-05-26 18:21:48,838 INFO: [Neuer Plan] 2025-05-26 – 8 Einträge geladen
+2025-05-26 18:21:49,020 INFO: [Neuer Plan] 2025-05-27 – 6 Einträge geladen
+2025-05-26 18:21:49,200 INFO: [Neuer Plan] 2025-05-28 – 8 Einträge geladen
+2025-05-26 18:22:49,103 INFO: [Planänderung] 2025-05-27
 • 2025-05-27 ▸ Ausfall in Stunde 5 – Eng Skal verlegt nach St.1 - ---
 • 2025-05-27 ▸ Ausfall in Stunde 6 – Eng Skal verlegt nach St.2 - ---
-2025-05-21 06:53:21,912 INFO: [Planänderung] 2025-05-28
+2025-05-26 18:22:49,306 INFO: [Planänderung] 2025-05-28
+• 2025-05-28 ▸ Ausfall in Stunde 3 – selbst. - inf1
+• 2025-05-28 ▸ Ausfall in Stunde 3 – kun4 Raue fällt aus - kun4
+• 2025-05-28 ▸ Ausfall in Stunde 4 – selbst. - inf1
+• 2025-05-28 ▸ Ausfall in Stunde 4 – kun4 Raue fällt aus - kun4
 • 2025-05-28 ▸ Ausfall in Stunde 5 – eth3 Mada fällt aus - eth3
 • 2025-05-28 ▸ Ausfall in Stunde 6 – eth3 Mada fällt aus - eth3
-2025-05-21 08:53:24,737 INFO: Shard ID None has successfully RESUMED session 1be4f079a8fcd6b4b61ecd47b57294c0.
-2025-05-21 08:58:21,612 ERROR: Unhandled exception in internal background task 'check'.
-Traceback (most recent call last):
-  File "/usr/local/lib/python3.11/dist-packages/discord/ext/tasks/__init__.py", line 246, in _loop
-    await self.coro(*args, **kwargs)
-  File "/root/vpm/bot_with_plan_monitor.py", line 220, in check
-    mine = [e for e in vp.parse_xml(xml) if vp.mine(e)]
-                       ^^^^^^^^^^^^^^^^^
-  File "/root/vpm/vp_10e_plan.py", line 87, in parse_xml
-    root = ET.fromstring(xml_bytes)
-           ^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/lib/python3.11/xml/etree/ElementTree.py", line 1339, in XML
-    return parser.close()
-           ^^^^^^^^^^^^^^
-xml.etree.ElementTree.ParseError: unclosed token: line 2, column 275260
-2025-05-21 10:38:30,175 INFO: Shard ID None has successfully RESUMED session 1be4f079a8fcd6b4b61ecd47b57294c0.
-2025-05-21 12:24:08,987 INFO: Shard ID None has successfully RESUMED session 1be4f079a8fcd6b4b61ecd47b57294c0.
-2025-05-21 12:47:24,525 WARNING: PyNaCl is not installed, voice will NOT be supported
-2025-05-21 12:47:24,525 INFO: logging in using static token
-2025-05-21 12:47:25,736 INFO: Shard ID None has connected to Gateway (Session ID: 7fab15f7e29fec7224ab239a4abc613b).
-2025-05-21 12:47:30,795 INFO: [Planänderung] 2025-05-28
+2025-05-26 18:44:35,756 WARNING: PyNaCl is not installed, voice will NOT be supported
+2025-05-26 18:44:35,760 INFO: logging in using static token
+2025-05-26 18:44:36,589 INFO: Shard ID None has connected to Gateway (Session ID: e70630df7e2bb026acaecbcead23a360).
+2025-05-26 18:44:38,780 INFO: [Neuer Plan] 2025-05-26 – 8 Einträge geladen
+2025-05-26 18:44:38,964 INFO: [Neuer Plan] 2025-05-27 – 6 Einträge geladen
+2025-05-26 18:44:39,169 INFO: [Neuer Plan] 2025-05-28 – 8 Einträge geladen
+2025-05-26 18:45:08,958 INFO: [Planänderung] 2025-05-27
+• 2025-05-27 ▸ Ausfall in Stunde 5 – Eng Skal verlegt nach St.1 - ---
+• 2025-05-27 ▸ Ausfall in Stunde 6 – Eng Skal verlegt nach St.2 - ---
+2025-05-26 18:45:09,141 INFO: [Planänderung] 2025-05-28
 • 2025-05-28 ▸ Ausfall in Stunde 3 – selbst. - inf1
+• 2025-05-28 ▸ Ausfall in Stunde 3 – kun4 Raue fällt aus - kun4
 • 2025-05-28 ▸ Ausfall in Stunde 4 – selbst. - inf1
-• 2025-05-28 ▸ Raumänderung: Stunde 3 INF1 132 → ---
-• 2025-05-28 ▸ Raumänderung: Stunde 4 INF1 132 → ---
-2025-05-21 13:00:04,482 WARNING: PyNaCl is not installed, voice will NOT be supported
-2025-05-21 13:00:04,483 INFO: logging in using static token
-2025-05-21 13:00:05,737 INFO: Shard ID None has connected to Gateway (Session ID: 8f29d073462f35dc94e039bd9bea901e).
-2025-05-21 13:06:51,588 INFO: Shard ID None has successfully RESUMED session 8f29d073462f35dc94e039bd9bea901e.
-2025-05-21 14:06:13,663 INFO: Shard ID None has successfully RESUMED session 8f29d073462f35dc94e039bd9bea901e.
-2025-05-21 14:37:08,233 ERROR: Unhandled exception in internal background task 'check'.
-Traceback (most recent call last):
-  File "/usr/local/lib/python3.11/dist-packages/discord/ext/tasks/__init__.py", line 246, in _loop
-    await self.coro(*args, **kwargs)
-  File "/root/vpm/bot_with_plan_monitor.py", line 220, in check
-    mine = [e for e in vp.parse_xml(xml) if vp.mine(e)]
-                       ^^^^^^^^^^^^^^^^^
-  File "/root/vpm/vp_10e_plan.py", line 87, in parse_xml
-    root = ET.fromstring(xml_bytes)
-           ^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/lib/python3.11/xml/etree/ElementTree.py", line 1339, in XML
-    return parser.close()
-           ^^^^^^^^^^^^^^
-xml.etree.ElementTree.ParseError: unclosed token: line 2, column 301237
-2025-05-21 14:44:31,447 WARNING: PyNaCl is not installed, voice will NOT be supported
-2025-05-21 14:44:31,448 INFO: logging in using static token
-2025-05-21 14:44:32,532 INFO: Shard ID None has connected to Gateway (Session ID: 211e3a133675cbf162e3b19e65cbe8ec).
-2025-05-21 14:58:37,036 ERROR: Unhandled exception in internal background task 'check'.
-Traceback (most recent call last):
-  File "/root/vpm/bot_with_plan_monitor.py", line 225, in check
-    mine = [e for e in vp.parse_xml(xml) if vp.mine(e)]
-                       ^^^^^^^^^^^^^^^^^
-  File "/root/vpm/vp_10e_plan.py", line 87, in parse_xml
-    root = ET.fromstring(xml_bytes)
-           ^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/lib/python3.11/xml/etree/ElementTree.py", line 1339, in XML
-    return parser.close()
-           ^^^^^^^^^^^^^^
-xml.etree.ElementTree.ParseError: unclosed token: line 2, column 257729
-
-During handling of the above exception, another exception occurred:
-
-Traceback (most recent call last):
-  File "/usr/local/lib/python3.11/dist-packages/discord/ext/tasks/__init__.py", line 246, in _loop
-    await self.coro(*args, **kwargs)
-  File "/root/vpm/bot_with_plan_monitor.py", line 226, in check
-    except xml.ParseError as err:
-           ^^^^^^^^^^^^^^
-AttributeError: 'bytes' object has no attribute 'ParseError'
-2025-05-21 15:16:42,361 INFO: Shard ID None has successfully RESUMED session 211e3a133675cbf162e3b19e65cbe8ec.
+• 2025-05-28 ▸ Ausfall in Stunde 4 – kun4 Raue fällt aus - kun4
+• 2025-05-28 ▸ Ausfall in Stunde 5 – eth3 Mada fällt aus - eth3
+• 2025-05-28 ▸ Ausfall in Stunde 6 – eth3 Mada fällt aus - eth3
+2025-05-27 13:13:19,412 WARNING: PyNaCl is not installed, voice will NOT be supported
+2025-05-27 13:13:19,412 INFO: logging in using static token
+2025-05-27 13:13:20,455 INFO: Shard ID None has connected to Gateway (Session ID: 54408a9f10366296471b66b0037da95d).
+2025-05-27 13:13:22,841 INFO: [Planänderung] 2025-05-28
+• 2025-05-28 ▸ Raumänderung: Stunde 3 KUN4 --- → 136
+• 2025-05-28 ▸ Raumänderung: Stunde 4 KUN4 --- → 136

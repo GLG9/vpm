@@ -53,7 +53,6 @@ if _fake:
         logging.warning("Ungültige FAKE_DATE=%s – echtes Datum wird benutzt", _fake)
 
 
-
 ######
 
 # ---------------------------------------------------------------------------
@@ -185,6 +184,11 @@ def fmt(e: dict) -> str:
 def room_change(old: dict, new: dict) -> Optional[str]:
     ko, kn = (old.get("kurs") or old.get("fach") or "").upper(), (new.get("kurs") or new.get("fach") or "").upper()
     ro, rn = (old.get("raum") or "").strip().upper(), (new.get("raum") or "").strip().upper()
+
+    # ignore if the new entry doesn't specify a room
+    if not rn:
+        return None
+
     if old["stunde"] == new["stunde"] and ko == kn and ro != rn:
         return f"Raumänderung: Stunde {new['stunde']} {kn} {old.get('raum') or '---'} → {new.get('raum') or '---'}"
     return None
@@ -192,7 +196,7 @@ def room_change(old: dict, new: dict) -> Optional[str]:
 # ---------------------------------------------------------------------------
 # Haupt-Task
 # ---------------------------------------------------------------------------
-@tasks.loop(seconds=60)
+@tasks.loop(seconds=30)
 async def check() -> None:
     ch = bot.get_channel(CHANNEL_ID)
     if ch is None:

@@ -1,30 +1,16 @@
 {
-  "20250519": [
-    "2025-05-19 ▸ Ausfall in Stunde 1 – selbst. - Mat",
-    "2025-05-19 ▸ Ausfall in Stunde 2 – selbst. - Mat",
-    "2025-05-21 ▸ Ausfall in Stunde 3 – selbst. - inf1",
-    "2025-05-21 ▸ Ausfall in Stunde 4 – selbst. - inf1",
-    "2025-05-21 ▸ Raumänderung: Stunde 1 MAT 115 → 114",
-    "2025-05-21 ▸ Raumänderung: Stunde 2 MAT 115 → 114",
-    "2025-05-23 ▸ Ausfall in Stunde 1 – Spo SchJ fällt aus - ---",
-    "2025-05-23 ▸ Ausfall in Stunde 2 – Spo SchJ fällt aus - ---",
-    "2025-05-23 ▸ Ausfall in Stunde 5 – kun2 KugJ fällt aus - kun2",
-    "2025-05-23 ▸ Ausfall in Stunde 6 – kun2 KugJ fällt aus - kun2"
-  ],
-  "20250521": [
-    "2025-05-21 ▸ Ausfall in Stunde 5 – eth3 Mada fällt aus - eth3",
-    "2025-05-21 ▸ Ausfall in Stunde 6 – eth3 Mada fällt aus - eth3",
-    "2025-05-21 ▸ Raumänderung: Stunde 5 ETH3 124 → ---",
-    "2025-05-21 ▸ Raumänderung: Stunde 6 ETH3 124 → ---",
-    "2025-05-26 ▸ Raumänderung: Stunde 3 RUS1 031 → 118",
-    "2025-05-26 ▸ Raumänderung: Stunde 4 RUS1 031 → 118",
+  "20250526": [
     "2025-05-27 ▸ Ausfall in Stunde 5 – Eng Skal verlegt nach St.1 - ---",
     "2025-05-27 ▸ Ausfall in Stunde 6 – Eng Skal verlegt nach St.2 - ---",
+    "2025-05-28 ▸ Ausfall in Stunde 3 – kun4 Raue fällt aus - kun4",
     "2025-05-28 ▸ Ausfall in Stunde 3 – selbst. - inf1",
+    "2025-05-28 ▸ Ausfall in Stunde 4 – kun4 Raue fällt aus - kun4",
     "2025-05-28 ▸ Ausfall in Stunde 4 – selbst. - inf1",
     "2025-05-28 ▸ Ausfall in Stunde 5 – eth3 Mada fällt aus - eth3",
-    "2025-05-28 ▸ Ausfall in Stunde 6 – eth3 Mada fällt aus - eth3",
-    "2025-05-28 ▸ Raumänderung: Stunde 3 INF1 132 → ---",
-    "2025-05-28 ▸ Raumänderung: Stunde 4 INF1 132 → ---"
+    "2025-05-28 ▸ Ausfall in Stunde 6 – eth3 Mada fällt aus - eth3"
+  ],
+  "20250527": [
+    "2025-05-28 ▸ Raumänderung: Stunde 3 KUN4 --- → 136",
+    "2025-05-28 ▸ Raumänderung: Stunde 4 KUN4 --- → 136"
   ]
 }

@@ -123,6 +123,10 @@ def test_canon_and_room_change():
     assert bot.room_change(old, new) == 'Raum\u00e4nderung: Stunde 1 MAT 115 \u2192 114'
     assert bot.room_change(old, old) is None
 
+def test_room_change_ignores_missing_new_room():
+    old = {"stunde": 1, "fach": "MAT", "kurs": None, "lehrer": "FELD", "raum": "115"}
+    new = {"stunde": 1, "fach": "MAT", "kurs": None, "lehrer": "FELD", "raum": None}
+    assert bot.room_change(old, new) is None
 
 def test_filtered_xml():
     xml = b"""<?xml version='1.0' encoding='utf-8'?>\n"""
