@@ -115,10 +115,11 @@ def parse_xml(xml_bytes: bytes, klasse: str = "10E") -> List[dict]:
         lehrer = g(s, "Le")
         raum   = g(s, "Ra")
         info   = g(s, "If")
-        # Wenn Info vorhanden, aber Lehrer und Raum fehlen → Ausfall
-         # Ausfall-Erkennung: Info vorhanden **und** weder Lehrer noch Raum
-        # → Fach auf '---' setzen; ursprüngliches Fach in `kurs` parken
-        if info and not lehrer and not raum:
+        # Wenn Info vorhanden, aber Lehrer fehlt, gilt die Stunde oft als
+        # Selbststudium. Wird kein Raum angegeben oder beginnt die Info mit
+        # "selbst", werten wir das ebenfalls als Ausfall. Dann wird das
+        # Fach auf "---" gesetzt und das Originalfach im Kursfeld geparkt.
+        if info and not lehrer and (not raum or info.lower().startswith("selbst")):
             fach = "---"
             if not kurs:
                 kurs = fach_orig
