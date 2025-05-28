@@ -481,4 +481,4 @@ if __name__ == "__main__":
                     f"\n=== {dt.datetime.now():%Y-%m-%d %H:%M:%S} ===\n"
                     f"{traceback.format_exc()}\n"
                 )
-            time.sleep(15)             # 15 s Pause, dann neuer Versuch
+            time.sleep(60)             # 15 s Pause, dann neuer Versuch

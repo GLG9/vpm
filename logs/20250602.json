@@ -1,0 +1,82 @@
+[
+  {
+    "stunde": 1,
+    "beginn": "7:15",
+    "ende": "08:00",
+    "fach": "Mat",
+    "kurs": null,
+    "lehrer": "Feld",
+    "raum": "115",
+    "info": null
+  },
+  {
+    "stunde": 2,
+    "beginn": null,
+    "ende": null,
+    "fach": "Mat",
+    "kurs": null,
+    "lehrer": "Feld",
+    "raum": "115",
+    "info": null
+  },
+  {
+    "stunde": 3,
+    "beginn": "9:05",
+    "ende": "09:50",
+    "fach": "rus1",
+    "kurs": "rus1",
+    "lehrer": "Möw",
+    "raum": "031",
+    "info": null
+  },
+  {
+    "stunde": 4,
+    "beginn": null,
+    "ende": null,
+    "fach": "rus1",
+    "kurs": "rus1",
+    "lehrer": "Möw",
+    "raum": "031",
+    "info": null
+  },
+  {
+    "stunde": 5,
+    "beginn": "11:00",
+    "ende": "11:45",
+    "fach": "Ges",
+    "kurs": null,
+    "lehrer": "Neu",
+    "raum": "118",
+    "info": null
+  },
+  {
+    "stunde": 6,
+    "beginn": null,
+    "ende": null,
+    "fach": "Ges",
+    "kurs": null,
+    "lehrer": "Neu",
+    "raum": "118",
+    "info": null
+  },
+  {
+    "stunde": 7,
+    "beginn": "12:55",
+    "ende": "13:40",
+    "fach": "Bio",
+    "kurs": null,
+    "lehrer": "Gruß",
+    "raum": "243",
+    "info": null
+  },
+  {
+    "stunde": 8,
+    "beginn": null,
+    "ende": null,
+    "fach": "Bio",
+    "kurs": null,
+    "lehrer": "Gruß",
+    "raum": "243",
+    "info": null
+  }
+]
