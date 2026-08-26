@@ -34,3 +34,9 @@ This repository implements a Discord bot that monitors the class substitution pl
 ├── tests/                    # pytest suite
 ├── requirements.txt          # dependencies
 ```
+
+## Server Operations
+
+- The production LXC is reachable through the SSH host alias `test-vscode-tunnel`.
+- `ssh test-vscode-tunnel 'docker ps'` shows the deployed `vpm` and `fux`
+  containers. Use this command first when checking their runtime state.
