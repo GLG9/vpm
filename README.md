@@ -1,36 +1,88 @@
-# Vertretungsplan Monitor Bot
+# Vertretungsplan-Monitor für Discord
 
-Dieser Bot überwacht den Vertretungsplan einer Schule und sendet Änderungen in einen Discord-Channel. Er lädt regelmäßig die XML-Daten des Plans und speichert Ausfälle oder Raumänderungen.
+Der Bot überwacht die offiziellen Indiware-Mobilpläne mehrerer persönlicher
+Profile. Er erkennt Ausfälle, Selbststudium, Lehrer-, Fach- und Raumwechsel,
+Verlegungen sowie Hinweise und fasst aufeinanderfolgende Stunden zu Blöcken
+zusammen.
 
-## Kurz für Junior Developer
+## Verhalten
 
-*Die wichtigsten Dateien*
-- **vp_10e_plan.py** – Funktionen zum Laden und Parsen des Vertretungsplans.
-- **bot_with_plan_monitor.py** – Enthält den Discord-Bot. 
-- **tests/** – Pytest-Tests, die Parsing und Hilfsfunktionen abdecken.
+- Prüfung montags bis freitags von 06:30 bis 15:00 Uhr alle 60 Sekunden.
+- Vorschau auf die nächsten zehn Schultage; Wochenenden und die in
+  `Klassen.xml` aufgeführten freien Tage werden übersprungen.
+- Pro Datei zuerst eine kleine `HEAD`-Anfrage. Die große XML wird nur bei
+  geändertem `ETag`, Änderungsdatum oder geänderter Dateigröße geladen.
+- Neue, geänderte und aufgehobene Vertretungen werden genau einmal gemeldet.
+- Um 07:00 Uhr kann pro Profil ein Überblick aktiviert werden.
+- Der Zustand wird atomar in `state/monitor.json` gespeichert und überlebt
+  Neustarts und Discord-Reconnects.
 
-*Setup*
-1. Python ≥ 3.11 installieren.
-2. Abhängigkeiten mit `pip install -r requirements.txt` installieren.
-3. Eine `.env` Datei anlegen und folgende Variablen setzen:
-   ```
-   VP_USER=...
-   VP_PASS=...
-   VP_BASE_URL=...
-   DISCORD_TOKEN=...
-   PLAN_CHANNEL_ID=...
-   ```
-   # optionale Einstellungen
-   CHECK_SECONDS=30   # wie oft der Plan abgefragt wird
-   SHOW_TICK=false   # Kopfzeile bei jedem Tick senden
-   SHOW_RES=false    # XML-Auszug der Klasse 10E ins Log schreiben
-   FAKE_DATE=YYYYMMDD  # Testdatum statt heutigem Datum
-4. Tests ausführen: `pytest`.
-5. Bot starten: `python bot_with_plan_monitor.py`.
+## Einrichtung
 
-Der Bot nutzt `tasks.loop` und schreibt Log-Dateien nach `logs/`.
+Voraussetzung ist Python 3.11 oder neuer.
 
-## Für nicht-technische Leser
+```bash
+python3 -m venv .venv
+.venv/bin/pip install -r requirements-dev.txt
+cp .env.example .env
+```
 
-Dieses Projekt ist ein kleiner Helfer für Discord. Er prüft regelmäßig den offiziellen Vertretungsplan der Klasse und meldet automatisch Änderungen (zum Beispiel Ausfälle oder Raumwechsel) in einem Discord-Channel. Dadurch wissen alle rechtzeitig Bescheid, ohne selbst den Plan zu kontrollieren.
+Danach in `.env` mindestens `VP_PASS`, `DISCORD_TOKEN` und
+`PLAN_CHANNEL_ID` eintragen. Zugangsdaten und Token werden niemals im Code
+oder in Git gespeichert.
 
+Start:
+
+```bash
+.venv/bin/python bot_with_plan_monitor.py
+```
+
+Der Bot steuert das Zeitfenster selbst; ein Cronjob ist dafür nicht nötig.
+Auf einem Server kann der Prozess trotzdem durch systemd, Docker oder einen
+anderen Prozessmanager dauerhaft gestartet werden.
+
+## Profile
+
+`MONITOR_PROFILES` enthält beliebig viele Profil-IDs. Für eine neue ID
+`max` werden folgende Variablen verwendet:
+
+```dotenv
+PROFILE_MAX_LABEL=Max · 12/2
+PROFILE_MAX_SOURCE_CLASSES=12/2
+PROFILE_MAX_DISPLAY_CLASS=12/2
+PROFILE_MAX_DAILY_OVERVIEW=true
+PROFILE_MAX_COURSES=CHE1@Gruß;eng1@Kiss
+```
+
+Kurs und ursprüngliche Lehrkraft werden exakt gepaart. Groß-/Kleinschreibung
+ist absichtlich relevant, weil beispielsweise `CHE1` und `che1` verschiedene
+Kurse sind. Mehrere Quellklassen werden kommasepariert angegeben.
+
+Alle Profile senden in denselben `PLAN_CHANNEL_ID`.
+
+## Befehle
+
+```text
+!heute luca
+!morgen jasper
+!übermorgen 8g
+```
+
+Ohne oder mit unbekanntem Profil zeigt der Bot die gültigen Profilnamen an.
+
+## Sicher testen
+
+Alle Tests:
+
+```bash
+.venv/bin/pytest -q
+```
+
+Ein echter Abruf der Schul-XML ohne Discord-Versand und ohne Veränderung des
+produktiven Zustands:
+
+```bash
+DRY_RUN=true .venv/bin/python bot_with_plan_monitor.py
+```
+
+Der Dry-Run gibt die erkannten Vertretungen und Hinweise nur im Terminal aus.

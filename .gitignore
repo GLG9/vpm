@@ -1,11 +1,10 @@
 .env
-#.gitignore
-#*.json
-#*.log
-__*
-*.pyc
-#discord.log
-#error.log
-#alerts.json
-#last_digest.txt
-__pycache__/vp_10e_plan.cpython-312.pyc
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Laufzeitdaten gehören auf den jeweiligen Server, nicht in Git.
+state/
+logs/
+*.log
