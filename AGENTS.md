@@ -38,5 +38,7 @@ This repository implements a Discord bot that monitors the class substitution pl
 ## Server Operations
 
 - The production LXC is reachable through the SSH host alias `test-vscode-tunnel`.
-- `ssh test-vscode-tunnel 'docker ps'` shows the deployed `vpm` and `fux`
-  containers. Use this command first when checking their runtime state.
+- VPM and Fux run as systemd services, not Docker containers. Check them with
+  `ssh test-vscode-tunnel 'systemctl status vpm_bot.service fux.service'`.
+- Both services should be `active` and `enabled`; VPM's service name is
+  `vpm_bot.service`.
