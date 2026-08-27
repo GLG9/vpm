@@ -42,3 +42,18 @@ This repository implements a Discord bot that monitors the class substitution pl
   `ssh test-vscode-tunnel 'systemctl status vpm_bot.service fux.service'`.
 - Both services should be `active` and `enabled`; VPM's service name is
   `vpm_bot.service`.
+
+## Production learnings
+
+### A running service does not prove that production credentials work
+
+- **Symptom:** `vpm_bot.service` is active and the Discord bot is online, but every
+  school XML request fails with HTTP 401/403.
+- **Cause:** The deployed `.env` contained non-empty but stale or incorrect school
+  credentials. Configuration validation checked presence, not authentication.
+- **Rule:** Before reporting a deployment as working, validate the production `.env`
+  without printing values, then use it for authenticated requests to `Klassen.xml` and
+  a current `PlanKlYYYYMMDD.xml`. Parse both as XML, verify the Discord bot token and
+  configured channel through read-only API calls, and inspect service logs since the
+  latest restart for 401/403 or fetch errors. `systemctl active` alone is never an
+  acceptance check.
