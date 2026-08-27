@@ -54,6 +54,10 @@ class MonitorService:
         )
         self.store = store or StateStore(config.state_file)
         self.state: MonitorState = self.store.load()
+        source_url = config.base_url.rstrip("/")
+        if self.state.source_url != source_url:
+            LOG.info("Planquelle geändert; Monitorzustand wird neu aufgebaut")
+            self.state = MonitorState(source_url=source_url)
         self._lock = asyncio.Lock()
 
     @property
@@ -154,14 +158,22 @@ class MonitorService:
             if catalog_error:
                 errors.append(catalog_error)
             fetched: list[dt.date] = []
-            complete = True
+            complete = catalog_error is None
+            available = False
             for day, result in zip(days, head_results):
                 if isinstance(result, BaseException):
                     complete = False
                     errors.append(f"{day:%Y-%m-%d}: {result}")
                     continue
                 if result is None:
+                    date_key = day.strftime("%Y%m%d")
+                    if date_key in self.state.fingerprints:
+                        complete = False
+                        errors.append(
+                            f"{day:%Y-%m-%d}: zuvor verfügbarer Plan fehlt"
+                        )
                     continue
+                available = True
                 date_key = day.strftime("%Y%m%d")
                 if self.state.fingerprints.get(date_key) == result:
                     continue
@@ -171,6 +183,10 @@ class MonitorService:
                         parse_profile_plan(payload, profile)
                         for profile in self.config.profiles
                     ]
+                    if any(plan.day != day for plan in plans):
+                        raise ValueError(
+                            f"Planinhalt gehört nicht zum angefragten Tag {day:%Y-%m-%d}"
+                        )
                 except (requests.RequestException, ET.ParseError, ValueError) as exc:
                     complete = False
                     errors.append(f"{day:%Y-%m-%d}: {exc}")
@@ -180,8 +196,12 @@ class MonitorService:
                 self.state.fingerprints[date_key] = result
                 fetched.append(day)
 
+            if not available:
+                complete = False
+                errors.append("Keine Plandatei im Überwachungszeitraum verfügbar")
+
             if not self.state.initialized:
-                if complete:
+                if complete and available:
                     self.state.delivered = dict(self.state.observed)
                     self.state.initialized = True
                 deliveries: list[Delivery] = []
@@ -201,6 +221,8 @@ class MonitorService:
                 profile.profile_id
                 for profile in self.config.profiles
                 if profile.daily_overview
+                and complete
+                and available
                 and overview_due
                 and profile.profile_id not in sent_today
             )

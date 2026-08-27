@@ -23,6 +23,7 @@ class Delivery:
 
 @dataclass
 class MonitorState:
+    source_url: str = ""
     initialized: bool = False
     catalog_fingerprint: FileFingerprint | None = None
     free_days: set[str] = field(default_factory=set)
@@ -35,6 +36,7 @@ class MonitorState:
     def to_dict(self) -> dict:
         return {
             "version": 1,
+            "source_url": self.source_url,
             "initialized": self.initialized,
             "catalog_fingerprint": (
                 self.catalog_fingerprint.to_dict()
@@ -61,6 +63,7 @@ class MonitorState:
     def from_dict(cls, data: dict) -> MonitorState:
         catalog = data.get("catalog_fingerprint")
         return cls(
+            source_url=str(data.get("source_url", "")),
             initialized=bool(data.get("initialized", False)),
             catalog_fingerprint=(
                 FileFingerprint.from_dict(catalog) if catalog else None

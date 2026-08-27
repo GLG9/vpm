@@ -312,7 +312,8 @@ def test_default_config_contains_all_selected_profiles(tmp_path) -> None:
     assert profiles["jasper"].display_class == "12/2"
     assert CourseRef("CHE1", "Gruß") in profiles["luca"].courses
     assert CourseRef("che1", "Kra") not in profiles["luca"].courses
-    assert profiles["8g"].daily_overview is False
+    assert profiles["8g"].label == "Leni · 8G"
+    assert profiles["8g"].daily_overview is True
 
     parsed = {
         profile_id: parse_profile_plan(xml_fixture(), profile)
@@ -355,6 +356,11 @@ class FakeClient:
         if self.fail_plan:
             raise requests.ConnectionError("temporärer Abruffehler")
         return self.payload
+
+
+class NoPlanClient(FakeClient):
+    def head_plan(self, day: dt.date):
+        return None
 
 
 def service_config(tmp_path) -> AppConfig:
@@ -435,3 +441,38 @@ def test_overview_is_due_once_after_seven(tmp_path) -> None:
         service.scan(dt.datetime(2026, 8, 28, 7, 1, tzinfo=BERLIN), force=True)
     )
     assert again.overview_profiles == ()
+
+
+def test_no_available_plan_never_initializes_or_sends_overview(tmp_path) -> None:
+    service = MonitorService(service_config(tmp_path), client=NoPlanClient())
+    result = asyncio.run(
+        service.scan(dt.datetime(2026, 8, 28, 7, 30, tzinfo=BERLIN), force=True)
+    )
+
+    assert service.state.initialized is False
+    assert result.overview_profiles == ()
+    assert "Keine Plandatei" in result.errors[-1]
+
+
+def test_source_change_discards_old_delivery_state(tmp_path) -> None:
+    config = service_config(tmp_path)
+    old_event = parse_profile_plan(xml_fixture(), profile_8g()).events[0]
+    StateStore(config.state_file).save(
+        MonitorState(
+            source_url="https://old.example.test/mobdaten",
+            initialized=True,
+            observed={old_event.key: old_event},
+            delivered={old_event.key: old_event},
+            daily_overviews={"20260828": {"8g"}},
+        )
+    )
+
+    service = MonitorService(config, client=FakeClient())
+    result = asyncio.run(
+        service.scan(dt.datetime(2026, 8, 28, 7, 30, tzinfo=BERLIN), force=True)
+    )
+
+    assert service.state.source_url == config.base_url
+    assert service.state.initialized is True
+    assert result.deliveries == ()
+    assert result.overview_profiles == ("8g",)

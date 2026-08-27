@@ -66,7 +66,7 @@ DEFAULT_COURSES: dict[str, tuple[CourseRef, ...]] = {
 DEFAULT_PROFILE_VALUES = {
     "luca": ("Gian · 12/2", "12/2", "12/2", True),
     "jasper": ("Jasper · 12/2", "12/1", "12/2", True),
-    "8g": ("8G", "08G", "8G", False),
+    "8g": ("Leni · 8G", "08G", "8G", True),
 }
 
 
