@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import datetime as dt
 import json
+import logging
 from zoneinfo import ZoneInfo
 
 import pytest
@@ -12,6 +13,7 @@ from monitor_config import AppConfig, load_config
 from monitor_service import MonitorService
 from monitor_state import Delivery, MonitorState, StateStore, diff_events
 from notification_format import build_notification_specs
+from bot_with_plan_monitor import DiscordReconnectLogFilter
 from vp_10e_plan import (
     CourseRef,
     EventKind,
@@ -212,6 +214,59 @@ def test_next_school_days_skips_weekend_and_free_day() -> None:
 )
 def test_active_window_boundaries(when: dt.datetime, expected: bool) -> None:
     assert is_active_window(when, dt.time(6, 30), dt.time(15, 0)) is expected
+
+
+def test_discord_reconnect_log_is_a_short_warning() -> None:
+    error = OSError("temporärer DNS-Fehler")
+    record = logging.LogRecord(
+        "discord.client",
+        logging.ERROR,
+        __file__,
+        1,
+        "Attempting a reconnect in %.2fs",
+        (1.5,),
+        (OSError, error, None),
+    )
+
+    assert DiscordReconnectLogFilter().filter(record)
+    assert record.levelno == logging.WARNING
+    assert record.exc_info is None
+    assert record.getMessage() == (
+        "Discord-Verbindung kurzzeitig unterbrochen: temporärer DNS-Fehler; "
+        "automatischer Wiederverbindungsversuch"
+    )
+
+
+@pytest.mark.parametrize(
+    "message",
+    [
+        "PyNaCl is not installed, voice will NOT be supported",
+        "davey is not installed, voice will NOT be supported",
+    ],
+)
+def test_unused_discord_voice_warning_is_not_logged(message: str) -> None:
+    record = logging.LogRecord(
+        "discord.client", logging.WARNING, __file__, 1, message, (), None
+    )
+
+    assert not DiscordReconnectLogFilter().filter(record)
+
+
+def test_non_reconnect_error_keeps_its_traceback() -> None:
+    error = OSError("temporärer DNS-Fehler")
+    record = logging.LogRecord(
+        "discord.client",
+        logging.ERROR,
+        __file__,
+        1,
+        "Unexpected Discord failure",
+        (),
+        (OSError, error, None),
+    )
+
+    assert DiscordReconnectLogFilter().filter(record)
+    assert record.levelno == logging.ERROR
+    assert record.exc_info is not None
 
 
 def test_diff_reports_new_update_and_resolution() -> None:

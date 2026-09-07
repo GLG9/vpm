@@ -9,6 +9,7 @@ import tempfile
 from collections import defaultdict
 from pathlib import Path
 
+import aiohttp
 import discord
 import requests
 from discord.ext import commands
@@ -30,8 +31,50 @@ from vp_10e_plan import ProfilePlan
 LOG = logging.getLogger("vpm")
 
 
+class DiscordReconnectLogFilter(logging.Filter):
+    """Keep expected Discord reconnects readable without hiding their cause."""
+
+    _RECONNECT_MESSAGE = "Attempting a reconnect"
+    _OPTIONAL_VOICE_WARNINGS = {
+        "PyNaCl is not installed, voice will NOT be supported",
+        "davey is not installed, voice will NOT be supported",
+    }
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        message = record.getMessage()
+        if (
+            record.name == "discord.client"
+            and message in self._OPTIONAL_VOICE_WARNINGS
+        ):
+            return False
+        if (
+            record.name != "discord.client"
+            or not message.startswith(self._RECONNECT_MESSAGE)
+            or record.exc_info is None
+        ):
+            return True
+
+        exception = record.exc_info[1]
+        if not isinstance(
+            exception,
+            (aiohttp.ClientConnectionError, asyncio.TimeoutError, OSError),
+        ):
+            return True
+
+        record.levelno = logging.WARNING
+        record.levelname = logging.getLevelName(logging.WARNING)
+        record.msg = (
+            "Discord-Verbindung kurzzeitig unterbrochen: %s; "
+            "automatischer Wiederverbindungsversuch"
+        )
+        record.args = (exception,)
+        record.exc_info = None
+        return True
+
+
 def configure_logging() -> None:
     Path("state").mkdir(exist_ok=True)
+    reconnect_filter = DiscordReconnectLogFilter()
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s %(levelname)s %(name)s: %(message)s",
@@ -40,6 +83,8 @@ def configure_logging() -> None:
             logging.FileHandler("state/monitor.log", encoding="utf-8"),
         ],
     )
+    for handler in logging.getLogger().handlers:
+        handler.addFilter(reconnect_filter)
 
 
 def to_embed(spec: NotificationSpec) -> discord.Embed:
