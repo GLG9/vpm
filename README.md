@@ -60,6 +60,25 @@ Kurse sind. Mehrere Quellklassen werden kommasepariert angegeben.
 
 Alle Profile senden in denselben `PLAN_CHANNEL_ID`.
 
+## Luca-Stundenplan für Jarvis
+
+Optional kann der Bot einen authentifizierten, nur lesbaren JSON-Endpunkt für
+Gians Profil bereitstellen. Dafür `SCHEDULE_API_TOKEN` auf ein langes eigenes
+Zufallstoken setzen. Standardmäßig bindet der Dienst nur an `127.0.0.1:8094`;
+für Jarvis auf einem anderen Host muss `SCHEDULE_API_HOST` auf eine private
+Schnittstellenadresse gesetzt und der Port dort erreichbar gemacht werden.
+Der Endpunkt `/api/v1/schedule/YYYY-MM-DD` gibt ausschließlich das Profil
+`luca` zurück. Andere Profile werden nie über diesen Endpunkt ausgewählt.
+Nicht veröffentlichte Tagespläne liefern `published: false`.
+
+Auf dem Jarvis-Host müssen `JARVIS_VPM_SCHEDULE_URL` (Basis-URL ohne den
+API-Pfad), `JARVIS_VPM_SCHEDULE_TOKEN` und `JARVIS_VPM_SCHEDULE_OWNER` gesetzt
+werden. Der letzte Wert muss exakt der Jarvis-Benutzername, die E-Mail-Adresse
+oder die interne Benutzer-ID von Gian Luca sein; so bleibt die Stundenplanregel
+auf sein Planner-Konto begrenzt. Beide Hosts müssen den API-Port über ein
+privates Netz erreichen können. Das Token wird getrennt in den beiden
+Service-Umgebungen gespeichert und gehört nicht in Git.
+
 ## Befehle
 
 ```text

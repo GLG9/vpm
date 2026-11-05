@@ -86,6 +86,9 @@ class AppConfig:
     timezone: ZoneInfo
     state_file: Path
     dry_run: bool
+    schedule_api_token: str = ""
+    schedule_api_host: str = "127.0.0.1"
+    schedule_api_port: int = 8094
 
 
 def _bool(value: str | None, default: bool = False) -> bool:
@@ -203,10 +206,13 @@ def load_config(
     try:
         check_seconds = float(env.get("CHECK_SECONDS", "60"))
         lookahead = int(env.get("LOOKAHEAD_SCHOOL_DAYS", "10"))
+        schedule_api_port = int(env.get("SCHEDULE_API_PORT", "8094"))
     except ValueError as exc:
-        raise ValueError("CHECK_SECONDS/LOOKAHEAD_SCHOOL_DAYS ungültig") from exc
+        raise ValueError("CHECK_SECONDS/LOOKAHEAD_SCHOOL_DAYS/SCHEDULE_API_PORT ungültig") from exc
     if check_seconds < 1 or lookahead < 1:
         raise ValueError("Prüfintervall und Vorschau müssen positiv sein")
+    if not 1 <= schedule_api_port <= 65535:
+        raise ValueError("SCHEDULE_API_PORT muss zwischen 1 und 65535 liegen")
 
     timezone = ZoneInfo(env.get("TIMEZONE", "Europe/Berlin"))
     return AppConfig(
@@ -226,4 +232,7 @@ def load_config(
         timezone=timezone,
         state_file=Path(env.get("STATE_FILE", "state/monitor.json")),
         dry_run=dry_run,
+        schedule_api_token=env.get("SCHEDULE_API_TOKEN", ""),
+        schedule_api_host=env.get("SCHEDULE_API_HOST", "127.0.0.1"),
+        schedule_api_port=schedule_api_port,
     )
