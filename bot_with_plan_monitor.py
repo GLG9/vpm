@@ -227,9 +227,18 @@ class MonitorBot(commands.Bot):
         self.config = config
         self.service = MonitorService(config)
         self.monitor_task: asyncio.Task | None = None
+        self.schedule_api_runner = None
 
     async def setup_hook(self) -> None:
         await self.add_cog(PlanCommands(self))
+        if self.config.schedule_api_token:
+            from schedule_api import start_schedule_api
+            self.schedule_api_runner = await start_schedule_api(
+                self.service,
+                self.config.schedule_api_token,
+                self.config.schedule_api_host,
+                self.config.schedule_api_port,
+            )
         self.monitor_task = asyncio.create_task(
             self._monitor_forever(), name="vertretungsplan-monitor"
         )
@@ -237,6 +246,8 @@ class MonitorBot(commands.Bot):
     async def close(self) -> None:
         if self.monitor_task:
             self.monitor_task.cancel()
+        if self.schedule_api_runner:
+            await self.schedule_api_runner.cleanup()
         await super().close()
 
     async def on_ready(self) -> None:
